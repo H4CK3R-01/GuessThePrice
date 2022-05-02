@@ -21,7 +21,7 @@ from db import User, session
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
-bot_version = "0.0.1"  # version of bot
+BOT_VERSION = "0.0.1"  # version of bot
 
 bot = telebot.TeleBot(os.getenv('BOT_API_KEY'))
 
