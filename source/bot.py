@@ -76,6 +76,7 @@ def query_text(inline_query):
 
 
 def main_loop():
+    # nur zum ärgern
     """ Start bot
     :raises: none
 
