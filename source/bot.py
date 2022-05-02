@@ -59,13 +59,16 @@ def send_help(message):
 
 @bot.inline_handler(lambda query: query.query == 'text')  # inline prints for debugging
 def query_text(inline_query):
-    """ Output in the console about current user actions and status of bot
-    :type inline_query:
-    :param inline_query:
+    """inline query handler for debugging
 
-    :raises: none
-
-    :rtype: none
+    Args:
+        inline_query (InlineQuery): inline query from telegram user
+    
+    Returns:
+        None: None
+    
+    Raises:
+        None: None
     """
     try:
         r = types.InlineQueryResultArticle('1', 'Result1', types.InputTextMessageContent('hi')) # pylint: disable=invalid-name
@@ -77,10 +80,16 @@ def query_text(inline_query):
 
 def main_loop():
     # nur zum ärgern
-    """ Start bot
-    :raises: none
+    """main loop for bot
 
-    :rtype: none
+    Args:
+        None: None
+    
+    Returns:
+        None: None
+    
+    Raises:
+        None: None
     """
     bot.infinity_polling()
 
