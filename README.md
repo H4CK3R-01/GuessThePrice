@@ -29,7 +29,7 @@ Oberthema:
 "Data is the new oil"
 
 # Setup for testing
-1. Create virtual environment `python -m venv venv venv/Scripts/activate`
+1. Create virtual environment `python -m venv venv env/Scripts/activate`
 2. Install requirements `pip install -r requirements.txt`
 3. Set environment variables (see list below)
    1. Create `.env`-file from `.env.example` and fill in needed keys
