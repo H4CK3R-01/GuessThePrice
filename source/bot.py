@@ -17,7 +17,7 @@ import telebot
 from dotenv import load_dotenv
 from telebot import types
 
-from db import User, session
+# from db import User, session
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
@@ -45,7 +45,7 @@ telebot.logger.setLevel(logging.DEBUG)
 @bot.inline_handler(lambda query: query.query == 'text')  # inline prints for debugging
 def query_text(inline_query):
     """ Output in the console about current user actions and status of bot
-    :type inline_query: 
+    :type inline_query:
     :param inline_query:
 
     :raises: none
@@ -53,10 +53,10 @@ def query_text(inline_query):
     :rtype: none
     """
     try:
-        r = types.InlineQueryResultArticle('1', 'Result1', types.InputTextMessageContent('hi'))
-        r2 = types.InlineQueryResultArticle('2', 'Result2', types.InputTextMessageContent('hi'))
+        r = types.InlineQueryResultArticle('1', 'Result1', types.InputTextMessageContent('hi')) # pylint: disable=invalid-name
+        r2 = types.InlineQueryResultArticle('2', 'Result2', types.InputTextMessageContent('hi')) # pylint: disable=invalid-name
         bot.answer_inline_query(inline_query.id, [r, r2])
-    except Exception as e:
+    except Exception as e: # pylint: disable=broad-except, invalid-name
         print(e)
 
 
