@@ -54,27 +54,37 @@ def send_help(message):
         None: None
 
     """
-    bot.reply_to(message, "This is the help message")
+    help_message = ("/me get my user info\n"
+                    "/help get this help message\n"
+                    "/gameinfo get game info\n"
+                    "/scoreboard get scoreboard\n"
+                    "/changename change your name\n"
+                    "/challenge get todays challenge\n"
+                    "/guess make guess for today")
+    bot.reply_to(message, help_message, parse_mode='MARKDOWN')
 
 
-@bot.inline_handler(lambda query: query.query == 'text')  # inline prints for debugging
+# inline prints for debugging
+@bot.inline_handler(lambda query: query.query == 'text')
 def query_text(inline_query):
     """inline query handler for debugging
 
     Args:
         inline_query (InlineQuery): inline query from telegram user
-    
+
     Returns:
         None: None
-    
+
     Raises:
         None: None
     """
     try:
-        r = types.InlineQueryResultArticle('1', 'Result1', types.InputTextMessageContent('hi')) # pylint: disable=invalid-name
-        r2 = types.InlineQueryResultArticle('2', 'Result2', types.InputTextMessageContent('hi')) # pylint: disable=invalid-name
+        r = types.InlineQueryResultArticle('1', 'Result1', types.InputTextMessageContent(
+            'hi'))  # pylint: disable=invalid-name
+        r2 = types.InlineQueryResultArticle(
+            '2', 'Result2', types.InputTextMessageContent('hi'))  # pylint: disable=invalid-name
         bot.answer_inline_query(inline_query.id, [r, r2])
-    except Exception as e: # pylint: disable=broad-except, invalid-name
+    except Exception as e:  # pylint: disable=broad-except, invalid-name
         print(e)
 
 
@@ -84,10 +94,10 @@ def main_loop():
 
     Args:
         None: None
-    
+
     Returns:
         None: None
-    
+
     Raises:
         None: None
     """
