@@ -6,11 +6,14 @@ __version__ = "1.0.0"
 
 import os
 
+from dotenv import load_dotenv
 from sqlalchemy import Column, Integer, String, ForeignKey, create_engine, Boolean, DateTime, Float
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-engine = create_engine(os.getenv("DATABASE_CONNECTION"), echo=True)
+load_dotenv()
+
+engine = create_engine(os.getenv("DATABASE_CONNECTION"))
 
 Base = declarative_base()
 
@@ -18,7 +21,7 @@ Base = declarative_base()
 class User(Base):
     __tablename__ = 'user'
     telegram_id = Column(Integer, primary_key=True)
-    username = Column(String)
+    username = Column(String(50))
     admin = Column(Boolean)
 
     def __repr__(self):
@@ -29,7 +32,7 @@ class Score(Base):
     __tablename__ = 'score'
     telegram_id = Column(Integer, ForeignKey('user.telegram_id'), primary_key=True)
     date = Column(DateTime, primary_key=True)
-    product_id = Column(String, ForeignKey('product.product_id'))
+    product_id = Column(String(50), ForeignKey('product.product_id'))
     guess = Column(Float)
     score = Column(Integer)
 
@@ -39,11 +42,11 @@ class Score(Base):
 
 class Product(Base):
     __tablename__ = 'product'
-    product_id = Column(String, primary_key=True)
+    product_id = Column(String(50), primary_key=True)
     price = Column(Float)
-    image_link = Column(String)
-    title = Column(String)
-    description = Column(String)
+    image_link = Column(String(5000))
+    title = Column(String(5000))
+    description = Column(String(5000))
     date = Column(DateTime)
 
     def __repr__(self):
