@@ -13,6 +13,7 @@ from dotenv import load_dotenv
 import telebot
 from telebot import types
 from apscheduler.schedulers.background import BackgroundScheduler
+import logging
 import os
 import sys
 
@@ -33,7 +34,9 @@ def send_start(message):
 
     :rtype: none
     """
-    bot.reply_to(message, "Welcome to this amazon bot")
+    bot.reply_to(message, "Welcome to this amazon prices guesser bot")
+    
+telebot.logger.setLevel(logging.DEBUG)
     
 @bot.inline_handler(lambda query: query.query == 'text') # inline prints for debugging
 def query_text(inline_query):
