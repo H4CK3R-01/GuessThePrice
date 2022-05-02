@@ -92,6 +92,33 @@ def send_gameinfo(message):
     bot.reply_to(message, gameinfo_message, parse_mode='MARKDOWN')
 
 
+@bot.message_handler(commands=['me', 'Me'])
+def send_user_info(message):
+    """send user info to user
+
+    Args:
+        message (Message): Message from telegram user, here /me
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    user_id = message.from_user.id
+    user_name = "" # tbd: get user name by id from db
+    user_score = 0 # tbd: get user score by adding all scores related to userid
+    user_guess = 0.0 # tbd: display if user has guessed today and how much
+    user_info = (f"Your user info:\n"
+                 f"User ID: {user_id}\n"
+                 f"Username: {user_name}\n"
+                 f"Today's guess: {user_guess}\n"
+                 f"Your Score: {user_score}\n")
+
+    bot.reply_to(message, user_info, parse_mode='MARKDOWN')
+
+
 # inline prints for debugging
 @bot.inline_handler(lambda query: query.query == 'text')
 def query_text(inline_query):
