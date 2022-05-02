@@ -29,18 +29,32 @@ bot = telebot.TeleBot(os.getenv('BOT_API_KEY'))
 
 @bot.message_handler(commands=['start', 'Start'])
 def send_start(message):
-    """ Sending welcome message to new user
-    :type message: message object bot
-    :param message: message that was reacted to, in this case always containing '/start'
+    """send start message to user
 
-    :raises: none
-
-    :rtype: none
+    Args:
+        message (Message): message from telegram user, here /start
     """
     bot.reply_to(message, "Welcome to this amazon prices guesser bot")
 
 
 telebot.logger.setLevel(logging.DEBUG)
+
+
+@bot.message_handler(commands=['help', 'Help'])
+def send_help(message):
+    """send all commands to user
+
+    Args:
+        message (Message): Message from telegram user, here /help
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    bot.reply_to(message, "This is the help message")
 
 
 @bot.inline_handler(lambda query: query.query == 'text')  # inline prints for debugging
