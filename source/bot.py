@@ -34,7 +34,9 @@ def send_start(message):
     Args:
         message (Message): message from telegram user, here /start
     """
-    bot.reply_to(message, "Welcome to this amazon prices guesser bot")
+    bot.reply_to(message, ( "Welcome to the game...\n"
+                            "Type /gameinfo for information about GuessThePrice\n"
+                            "Type /help for an overview of all commands\n"))
 
 
 telebot.logger.setLevel(logging.DEBUG)
@@ -62,6 +64,31 @@ def send_help(message):
                     "/challenge get todays challenge\n"
                     "/guess make guess for today")
     bot.reply_to(message, help_message, parse_mode='MARKDOWN')
+
+
+@bot.message_handler(commands=['gameinfo', 'Gameinfo'])
+def send_gameinfo(message):
+    """send game info to user
+
+    Args:
+        message (Message): Message from telegram user, here /gameinfo
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    gameinfo_message = ("GuessThePrice is a game where you have to guess\n"
+                        "the price of an amazon product.\n"
+                        "Start by setting your name with /changename\n"
+                        "You can get a new challenge every day.\n"
+                        "You are informed when a new challenge is available.\n"
+                        "To see the challenge type /challenge\n"
+                        "To guess the price type /guess\n"
+                        "At 22:00 pm the scores and answer will be shown\n")
+    bot.reply_to(message, gameinfo_message, parse_mode='MARKDOWN')
 
 
 # inline prints for debugging
