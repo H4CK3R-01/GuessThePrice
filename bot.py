@@ -11,6 +11,7 @@ __license__ = "None"
 
 from dotenv import load_dotenv
 import telebot
+from telebot import types
 from apscheduler.schedulers.background import BackgroundScheduler
 import os
 import sys
@@ -33,6 +34,24 @@ def send_start(message):
     :rtype: none
     """
     bot.reply_to(message, "Welcome to this amazon bot")
+    
+@bot.inline_handler(lambda query: query.query == 'text') # inline prints for debugging
+def query_text(inline_query):
+    
+    """ Output in the console about current user actions and status of bot
+    :type inline_query: 
+    :param inline_query:
+
+    :raises: none
+
+    :rtype: none
+    """
+    try:
+        r = types.InlineQueryResultArticle('1', 'Result1', types.InputTextMessageContent('hi'))
+        r2 = types.InlineQueryResultArticle('2', 'Result2', types.InputTextMessageContent('hi'))
+        bot.answer_inline_query(inline_query.id, [r, r2])
+    except Exception as e:
+        print(e)
 
 def main_loop():
     
