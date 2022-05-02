@@ -35,6 +35,7 @@ def send_start(message):
         message (Message): message from telegram user, here /start
     """
     bot.reply_to(message, ( "Welcome to the game...\n"
+                            "To start set a name by typing /changename\n"
                             "Type /gameinfo for information about GuessThePrice\n"
                             "Type /help for an overview of all commands\n"))
 
