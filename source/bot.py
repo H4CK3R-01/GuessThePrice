@@ -119,6 +119,74 @@ def send_user_info(message):
     bot.reply_to(message, user_info, parse_mode='MARKDOWN')
 
 
+@bot.message_handler(commands=['scoreboard', 'Scoreboard'])
+def send_scoreboard(message):
+    """send scoreboard to user
+
+    Args:
+        message (Message): Message from telegram user, here /scoreboard
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    bot.reply_to(message, "Scoreboard not implemented yet")
+
+
+@bot.message_handler(commands=['challenge', 'Challenge'])
+def send_challenge(message):
+    """send challenge to user
+
+    Args:
+        message (Message): Message from telegram user, here /challenge
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    bot.reply_to(message, "Challenge not implemented yet")
+
+
+@bot.message_handler(commands=['guess', 'Guess'])
+def send_guess(message):
+    """send guess to user
+
+    Args:
+        message (Message): Message from telegram user, here /guess
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    bot.reply_to(message, "Guess not implemented yet")
+
+
+@bot.message_handler(commands=['changename', 'Changename'])
+def change_name(message):
+    """change user name
+
+    Args:
+        message (Message): Message from telegram user, here /changename
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    bot.reply_to(message, "change name not implemented yet")
+
+
 # inline prints for debugging
 @bot.inline_handler(lambda query: query.query == 'text')
 def query_text(inline_query):
