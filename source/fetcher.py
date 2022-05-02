@@ -1,0 +1,1 @@
+"""script with functions for fetching product data from amazon"""
