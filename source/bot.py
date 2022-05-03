@@ -13,13 +13,15 @@ import logging
 import os
 import sys
 
+import sqlalchemy
+from sqlalchemy.exc import IntegrityError
 import telebot
 from dotenv import load_dotenv
 from telebot import types
 # from apscheduler.schedulers.background import BackgroundScheduler
 
-# from db import User, session
-from db import User, session
+from db import User, session, Product
+from fetcher import *
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
@@ -192,6 +194,77 @@ def change_name(message):
 
     """
     bot.reply_to(message, "change name not implemented yet")
+
+
+@bot.message_handler(commands=['addproduct', 'Addproduct'])
+def add_product(message):
+    """Add product to database
+
+    Args:
+        message (Message): Message from telegram user, here /addproduct
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    # Check if user is admin
+    user_id = int(message.from_user.id)
+    bot.send_message(chat_id=user_id, text='Please insert the Amazon product id (i.e. B00XKZYZ2S)')
+    bot.register_next_step_handler(message, receive_product_data)  # executes function when user sends message
+
+
+def receive_product_data(message):
+    # Check if user is admin
+    user_id = int(message.from_user.id)
+    product_id = str(message.text)
+
+    product_src = fetch_url('https://www.amazon.de/dp/' + product_id)
+
+    title = get_title(product_src)
+    image_url = get_image(product_src, get_title(product_src))
+    price = get_price(product_src)
+    description = get_description(product_src)
+
+    bot.send_message(chat_id=user_id, text=title)
+    bot.send_message(chat_id=user_id, text=image_url)
+    bot.send_message(chat_id=user_id, text=price)
+    bot.send_message(chat_id=user_id, text=description)
+
+    # markup = InlineKeyboardMarkup()
+    # markup.row_width = 2
+    # markup.add(InlineKeyboardButton("Yes", callback_data="cb_yes"),
+    #            InlineKeyboardButton("No", callback_data="cb_no"))
+    #
+    # bot.send_message(chat_id=user_id, text="Is this the product you want to add?", reply_markup=markup)
+
+    # Insert into database
+    try:
+        product = Product(
+            product_id=product_id,
+            title=title,
+            image_link=image_url,
+            price=price[0],
+            currency=price[1],
+            description=description
+        )
+        session.add(product)
+        session.commit()
+
+        bot.send_message(chat_id=user_id, text='Successfully added product to database')
+    except sqlalchemy.exc.IntegrityError:
+        session.rollback()
+        bot.send_message(chat_id=user_id, text='Product is in database already')
+
+
+@bot.callback_query_handler(func=lambda call: True)
+def callback_query(call):
+    if call.data == "cb_yes":
+        bot.answer_callback_query(call.id, "Answer is Yes")
+    elif call.data == "cb_no":
+        bot.answer_callback_query(call.id, "Answer is No")
 
 
 # inline prints for debugging

@@ -44,6 +44,7 @@ class Product(Base):
     __tablename__ = 'product'
     product_id = Column(String(50), primary_key=True)
     price = Column(Float)
+    currency = Column(String(50))
     image_link = Column(String(5000))
     title = Column(String(5000))
     description = Column(String(5000))
