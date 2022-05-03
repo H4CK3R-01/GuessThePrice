@@ -14,4 +14,4 @@ COPY source /srv/flask_app
 RUN chmod +x ./deploy/start.sh
 
 # Run the app
-CMD ["./deploy/start.sh"]
+CMD ["python", "bot.py"]

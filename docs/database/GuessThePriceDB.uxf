@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<diagram program="umlet" version="14.3.0">
+  <zoom_level>16</zoom_level>
+  <element>
+    <id>UMLUseCase</id>
+    <coordinates>
+      <x>3056</x>
+      <y>768</y>
+      <w>192</w>
+      <h>96</h>
+    </coordinates>
+    <panel_attributes>lt=.
+Collaboration
+fg=red
+bg=yellow</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>256</x>
+      <y>208</y>
+      <w>464</w>
+      <h>192</h>
+    </coordinates>
+    <panel_attributes>User
+--
+telegram_id: integer (PK)
+username: varchar(20) (Unique)
+admin: tinyint(1)</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>928</x>
+      <y>576</y>
+      <w>464</w>
+      <h>176</h>
+    </coordinates>
+    <panel_attributes>Score
+--
+telegram_id: integer (PK/FK)
+date: Date (PK)
+product_id: varchar(20) (FK)
+guess: float
+score: integer
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>UMLClass</id>
+    <coordinates>
+      <x>1568</x>
+      <y>192</y>
+      <w>464</w>
+      <h>208</h>
+    </coordinates>
+    <panel_attributes>Product
+--
+product_id: varchar(20) (PK)
+price: float
+image_link: Text
+title: Text
+description: Text
+date: Date
+
+
+
+</panel_attributes>
+    <additional_attributes/>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>1376</x>
+      <y>224</y>
+      <w>224</w>
+      <h>496</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>120.0;10.0;10.0;290.0</additional_attributes>
+  </element>
+  <element>
+    <id>Relation</id>
+    <coordinates>
+      <x>704</x>
+      <y>240</y>
+      <w>256</w>
+      <h>416</h>
+    </coordinates>
+    <panel_attributes>lt=-
+</panel_attributes>
+    <additional_attributes>140.0;240.0;10.0;10.0</additional_attributes>
+  </element>
+</diagram>
