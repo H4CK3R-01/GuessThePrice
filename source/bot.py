@@ -11,6 +11,7 @@ __license__ = "None"
 
 import logging
 import os
+import re
 import sys
 
 import sqlalchemy
@@ -54,19 +55,23 @@ def start_name_setter(message):
     user_id = int(message.from_user.id)
     user_name = ""
 
-    if str(message.text).lower() == "cancel" or "auto" or "stop":  # Set user name to user
+    if str(message.text).lower() == "cancel":  # Set user name to user
         user_name = "User" + str(user_id) # generate user name, user can change it with /changename
+
+    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_]+$', str(message.text)):
+        bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
+        return
 
     else:
         user_name = str(message.text)
-        bot.reply_to(message, f"Thank you for setting your name {user_name} \
-            \nType /gameinfo for information about GuessThePrice \
-            \nType /help for an overview of all commands")
 
     try:
         user = User(telegram_id=user_id, username=user_name, admin=False)
         session.add(user)
         session.commit()
+        bot.reply_to(message, f"Thank you for setting your name {user_name} \
+            \nType /gameinfo for information about GuessThePrice \
+            \nType /help for an overview of all commands")
 
     except sqlalchemy.exc.IntegrityError:
         session.rollback()
@@ -223,7 +228,45 @@ def change_name(message):
         None: None
 
     """
-    bot.reply_to(message, "change name not implemented yet")
+
+    bot.reply_to(message, "type new name (else type \"cancel\"):")
+    bot.register_next_step_handler(message, change_name_setter)
+
+
+def change_name_setter(message):
+    """change user name
+
+    Args:
+        message (Message): Message to react to
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+
+    if str(message.text).lower() == "cancel":  # Set user name to user
+        bot.reply_to(message, "Name not changed")
+        return
+
+    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_]+$', str(message.text)):
+        bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
+        return
+
+    else:
+        user_id = int(message.from_user.id)
+        user_name = str(message.text)
+        try:
+            user = session.query(User).filter_by(telegram_id=user_id).first()
+            user.username = user_name
+            session.commit()
+            bot.reply_to(message, f"Your name has been changed to {user_name}")
+
+        except sqlalchemy.exc.IntegrityError:
+            session.rollback()
+            bot.reply_to(message, "Something went wrong")
 
 
 @bot.message_handler(commands=['addproduct', 'Addproduct'])
