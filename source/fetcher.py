@@ -138,7 +138,7 @@ def get_price(response):
 if __name__ == "__main__":
     prod_src = fetch_url('https://www.amazon.de/dp/B082QDB6CG')
 
-    print("Title: " + get_title(prod_src) + "\n")
-    print("Image: " + get_image(prod_src, get_title(prod_src)) + "\n")
-    print("Price: " + str(get_price(prod_src)) + "\n")
+    print("Title:       " + get_title(prod_src) + "\n")
+    print("Image:       " + get_image(prod_src, get_title(prod_src)) + "\n")
+    print("Price:       " + str(get_price(prod_src)) + "\n")
     print("Description: " + get_description(prod_src))
