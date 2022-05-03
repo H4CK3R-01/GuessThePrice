@@ -1,7 +1,7 @@
 version: '3.7'
 
 services:
-  aktienbot_bot:
+  bot:
     image: registry.flokaiser.com/guesstheprice/bot
     env_file:
       - ${PWD}/.env
