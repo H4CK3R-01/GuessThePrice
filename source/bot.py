@@ -40,7 +40,7 @@ def send_start(message):
         message (Message): message from telegram user, here /start
     """
     bot.send_message(chat_id=int(message.from_user.id), text=("Welcome to the game... \
-                                                            \nTo start please set a name for yourself or type cancel to set default name:"))
+                                                            \nTo start please set a name for yourself or type cancel to set generated name:"))
 
     bot.register_next_step_handler(message, start_name_setter)
 
@@ -55,7 +55,7 @@ def start_name_setter(message):
     user_name = ""
 
     if str(message.text).lower() == "cancel" or "auto" or "stop":  # Set user name to user
-        user_name = "NewUser" + str(randrange(0, 9999999)) # generate random name, user can change it with /changename
+        user_name = "User" + str(user_id) # generate user name, user can change it with /changename
 
     else:
         user_name = str(message.text)
