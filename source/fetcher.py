@@ -136,6 +136,7 @@ def get_price(response):
 
 
 if __name__ == "__main__":
+    """Main function"""
     prod_src = fetch_url('https://www.amazon.de/dp/B082QDB6CG')
 
     print("Title:       " + get_title(prod_src) + "\n")
