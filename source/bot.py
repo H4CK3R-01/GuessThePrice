@@ -19,6 +19,7 @@ from telebot import types
 # from apscheduler.schedulers.background import BackgroundScheduler
 
 # from db import User, session
+from db import User, session
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
@@ -107,14 +108,20 @@ def send_user_info(message):
 
     """
     user_id = message.from_user.id
-    user_name = "" # tbd: get user name by id from db
-    user_score = 0 # tbd: get user score by adding all scores related to userid
-    user_guess = 0.0 # tbd: display if user has guessed today and how much
-    user_info = (f"Your user info:\n"
-                 f"User ID: {user_id}\n"
-                 f"Username: {user_name}\n"
-                 f"Today's guess: {user_guess}\n"
-                 f"Your Score: {user_score}\n")
+
+    user = session.query(User).filter_by(telegram_id=user_id).first()
+    if user is not None:
+        user_name = user.username  # tbd: get user name by id from db
+        user_score = 0  # tbd: get user score by adding all scores related to userid
+        user_guess = 0.0  # tbd: display if user has guessed today and how much
+        user_info = (f"Your user info:\n"
+                     f"User ID: {user_id}\n"
+                     f"Username: {user_name}\n"
+                     f"Today's guess: {user_guess}\n"
+                     f"Your Score: {user_score}\n")
+    else:
+        # User not found
+        user_info = f"User does not exist."
 
     bot.reply_to(message, user_info, parse_mode='MARKDOWN')
 
