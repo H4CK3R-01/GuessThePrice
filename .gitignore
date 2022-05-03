@@ -1,6 +1,9 @@
 # IntelliJ / PyCharm
 .idea/
 
+db.db
+db.sqlite3
+
 */.env
 
 #vscode
