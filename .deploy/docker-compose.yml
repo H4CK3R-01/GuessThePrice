@@ -1,0 +1,12 @@
+version: '3.7'
+
+services:
+  aktienbot_bot:
+    image: registry.flokaiser.com/guesstheprice/bot
+    env_file:
+      - ${PWD}/.env
+
+networks:
+  default:
+    external:
+      name: ens18_net

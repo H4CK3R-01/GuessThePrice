@@ -1,0 +1,54 @@
+pipeline:
+  generate_docker_tag:
+    image: golang
+    commands:
+      - echo -n "${CI_COMMIT_BRANCH//\//-}-${CI_COMMIT_SHA:0:8}, latest" > .tags
+    when:
+      path: [ "source/**" ]
+      event: push
+
+
+  # -------------------------------------- Bot --------------------------------------
+  build_bot:
+    image: woodpeckerci/plugin-docker-buildx
+    settings:
+      repo:
+        from_secret: repo_bot
+      username:
+        from_secret: username
+      password:
+        from_secret: password
+      registry:
+        from_secret: registry
+      dockerfile: source/Dockerfile
+      platforms: linux/amd64
+    when:
+      path: "source/**"
+      event: push
+
+
+  # -------------------------------------- Deploy --------------------------------------
+  deploy:
+    image: appleboy/drone-ssh
+    network_mode: host
+    settings:
+      host:
+        from_secret: ssh_host
+      username:
+        from_secret: ssh_user
+      password:
+        from_secret: ssh_password
+      port:
+        from_secret: ssh_port
+      script:
+        - cd /home/administrator/GuessThePrice
+        - git pull
+        - cd deploy
+        - docker-compose pull
+        - docker-compose -p "guesstheprice" up -d
+    when:
+      path: [ "source/**" ]
+      event: push
+
+
+branches: main
