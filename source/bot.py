@@ -14,14 +14,15 @@ import os
 import sys
 
 import sqlalchemy
-from sqlalchemy.exc import IntegrityError
 import telebot
 from dotenv import load_dotenv
+from sqlalchemy.exc import IntegrityError
 from telebot import types
-# from apscheduler.schedulers.background import BackgroundScheduler
 
 from db import User, session, Product
 from fetcher import *
+
+# from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
@@ -37,19 +38,19 @@ def send_start(message):
     Args:
         message (Message): message from telegram user, here /start
     """
-    bot.send_message(chat_id=int(message.from_user.id), text=( "Welcome to the game... \
+    bot.send_message(chat_id=int(message.from_user.id), text=("Welcome to the game... \
                                                             \nTo start please set a name for yourself or type cancel to set default name:"))
-    
+
     bot.register_next_step_handler(message, start_name_setter)
-                                                        
-    
+
+
 def start_name_setter(message):
     """Set name for user and send introduction
 
     Args:
         message (Message): Message to react to
     """
-    if str(message.text).lower() == "cancel": # Set user name to user
+    if str(message.text).lower() == "cancel":  # Set user name to user
         bot.reply_to(message, "Your username will be set to default_user. \
             \nType /gameinfo for information about GuessThePrice \
             \nType /help for an overview of all commands")
@@ -226,14 +227,14 @@ def add_product(message):
         None: None
 
     """
-    # Check if user is admin
+    # TODO: Check if user is admin
     user_id = int(message.from_user.id)
     bot.send_message(chat_id=user_id, text='Please insert the Amazon product id (i.e. B00XKZYZ2S)')
     bot.register_next_step_handler(message, receive_product_data)  # executes function when user sends message
 
 
 def receive_product_data(message):
-    # Check if user is admin
+    # TODO: Check if user is admin
     user_id = int(message.from_user.id)
     product_id = str(message.text)
 
