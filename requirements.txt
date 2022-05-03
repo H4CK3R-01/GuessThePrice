@@ -3,3 +3,5 @@ python-dotenv~=0.20.0
 APScheduler~=3.9.1
 SQLAlchemy~=1.4.36
 mysqlclient~=1.4.6
+requests~=2.27.1
+beautifulsoup4~=4.9.1
