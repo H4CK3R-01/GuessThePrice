@@ -18,6 +18,7 @@ import telebot
 from dotenv import load_dotenv
 from sqlalchemy.exc import IntegrityError
 from telebot import types
+from random import randrange
 
 from db import User, session, Product
 from fetcher import *
@@ -50,14 +51,26 @@ def start_name_setter(message):
     Args:
         message (Message): Message to react to
     """
-    if str(message.text).lower() == "cancel":  # Set user name to user
-        bot.reply_to(message, "Your username will be set to default_user. \
-            \nType /gameinfo for information about GuessThePrice \
-            \nType /help for an overview of all commands")
+    user_id = int(message.from_user.id)
+    user_name = ""
+
+    if str(message.text).lower() == "cancel" or "auto" or "stop":  # Set user name to user
+        user_name = "NewUser" + str(randrange(0, 9999999)) # generate random name, user can change it with /changename
+
     else:
-        bot.reply_to(message, f"Thank you for setting your name {message.text} \
+        user_name = str(message.text)
+        bot.reply_to(message, f"Thank you for setting your name {user_name} \
             \nType /gameinfo for information about GuessThePrice \
             \nType /help for an overview of all commands")
+
+    try:
+        user = User(telegram_id=user_id, username=user_name, admin=False)
+        session.add(user)
+        session.commit()
+
+    except sqlalchemy.exc.IntegrityError:
+        session.rollback()
+        bot.reply_to(message, "You are already registered, change name with /changename")
 
 
 telebot.logger.setLevel(logging.DEBUG)
