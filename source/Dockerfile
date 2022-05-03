@@ -10,8 +10,5 @@ RUN pip install -r requirements.txt --src /usr/local/src --no-warn-script-locati
 # Copy the source code to the working directory
 COPY source /srv/flask_app
 
-# Change file permissions
-RUN chmod +x ./deploy/start.sh
-
 # Run the app
 CMD ["python", "bot.py"]
