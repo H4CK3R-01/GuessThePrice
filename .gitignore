@@ -1,6 +1,8 @@
 # IntelliJ / PyCharm
 .idea/
 
+*/.env
+
 #vscode
 .vscode
 
