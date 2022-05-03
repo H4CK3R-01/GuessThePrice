@@ -37,10 +37,21 @@ def send_start(message):
     Args:
         message (Message): message from telegram user, here /start
     """
-    bot.reply_to(message, ( "Welcome to the game...\n"
-                            "To start set a name by typing /changename\n"
-                            "Type /gameinfo for information about GuessThePrice\n"
-                            "Type /help for an overview of all commands\n"))
+    bot.send_message(chat_id=int(message.from_user.id), text=( "Welcome to the game...\n \
+                                                              To start please set a name for yourself:"))
+    
+    bot.register_next_step_handler(message, start_name_setter)
+                                                        
+    
+def start_name_setter(message):
+    """Set name for user and send introduction
+
+    Args:
+        message (Message): Message to react to
+    """
+    bot.reply_to(message, "Thank you for setting your name {message.text} \
+        \nType /gameinfo for information about GuessThePrice \
+        \nType /help for an overview of all commands")
 
 
 telebot.logger.setLevel(logging.DEBUG)
