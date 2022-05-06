@@ -62,9 +62,8 @@ def start_name_setter(message):
     if not re.match(r'^[a-zA-Z][a-zA-Z0-9_]+$', str(message.text)):
         bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
         return
-
-    else:
-        user_name = str(message.text)
+    
+    user_name = str(message.text)
 
     try:
         user = User(telegram_id=user_id, username=user_name, admin=False)
@@ -291,6 +290,11 @@ def add_product(message):
 
 
 def receive_product_data(message):
+    """ registering new product in the db and fetching it from amazon
+
+    Args:
+        message (Message): Message that is being reacted to. Always from add_product because of next_step_handler
+    """
     # TODO: Check if user is admin
     user_id = int(message.from_user.id)
     product_id = str(message.text)
