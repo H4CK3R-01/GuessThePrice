@@ -13,6 +13,7 @@ import logging
 import os
 import re
 import sys
+import datetime as dt
 
 import sqlalchemy
 import telebot
@@ -145,11 +146,12 @@ def send_user_info(message):
     """
     user_id = message.from_user.id
     user = session.query(User).filter_by(telegram_id=user_id).first()
+    scores = session.query(Score).filter_by(telegram_id=user_id).all()
 
     if user is not None:
         user_name = user.username  # tbd: get user name by id from db
-        user_score = sum(0)  # tbd: get user score by adding all scores related to userid
-        user_guess = 0.0  # tbd: display if user has guessed today and how much
+        user_score = sum(score for score in scores)  # tbd: get user score by adding all scores related to userid
+        user_guess = session.query(Score).filter_by(date=dt.datetime.now(), telegram_id=user_id).first().guess or "not guessed today" # tbd: display if user has guessed today and how much
         user_info = (f"Your user info:\n"
                      f"User ID: {user_id}\n"
                      f"Username: {user_name}\n"
@@ -157,7 +159,7 @@ def send_user_info(message):
                      f"Your Score: {user_score}\n")
     else:
         # User not found
-        user_info = f"User does not exist."
+        user_info = "User does not exist."
 
     bot.reply_to(message, user_info, parse_mode='MARKDOWN')
 
