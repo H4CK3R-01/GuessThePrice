@@ -198,7 +198,7 @@ def send_challenge(message):
 
 @bot.message_handler(commands=['guess', 'Guess'])
 def send_guess(message):
-    """send guess to user
+    """let user guess the price of the product
 
     Args:
         message (Message): Message from telegram user, here /guess
@@ -282,7 +282,13 @@ def add_product(message):
         None: None
 
     """
-    # TODO: Check if user is admin
+    user_id = message.from_user.id
+
+    # Check if user is admin
+    if not session.query(User).filter_by(telegram_id=user_id).first().admin:
+        bot.reply_to(message, "Error: Admin rights are required to add products")
+        return
+
     user_id = int(message.from_user.id)
     bot.send_message(chat_id=user_id, text='Please insert the Amazon product id (i.e. B00XKZYZ2S)')
     bot.register_next_step_handler(message, receive_product_data)  # executes function when user sends message
@@ -294,7 +300,6 @@ def receive_product_data(message):
     Args:
         message (Message): Message that is being reacted to. Always from add_product because of next_step_handler
     """
-    # TODO: Check if user is admin
     user_id = int(message.from_user.id)
     product_id = str(message.text)
 
