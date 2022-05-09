@@ -23,9 +23,8 @@ from telebot import types
 from apscheduler.schedulers.background import BackgroundScheduler
 import pandas
 
-from db import User, session, Product
+from db import User, session, Product, Score
 from fetcher import *
-from db import Score
 
 
 load_dotenv(dotenv_path='.env')  # load environment variables
@@ -103,7 +102,10 @@ def send_help(message):
                     "/scoreboard get scoreboard\n"
                     "/changename change your name\n"
                     "/challenge get todays challenge\n"
-                    "/daily make guess for today")
+                    "/daily open and do challenge for today\n"
+                    "/setAdmin set admin status of user (ADMIN)\n"
+                    "/addproduct add product for further challenges (ADMIN)\n"
+                    "/users get all users (ADMIN)\n")
     bot.reply_to(message, help_message, parse_mode='MARKDOWN')
 
 
@@ -306,13 +308,15 @@ def send_scoreboard(message):
         alltime_score = sum(score.score for score in user_scores)
         alltime_board.append((user.username, alltime_score))
 
-    if len(alltime_board) == 0:
-        bot.reply_to(message, "No users have scored yet.")
-
     # generate weekly scoreboard
     for user in users:
         telegram_id = user.telegram_id
-        user_scores = session.query(Score).filter(Score.telegram_id==telegram_id, Score.date.date().isocalendar().week==dt.date.today().isocalendar().week).all() # only get scores of this week
+        print(session.query(Score).all())
+        all_user_scores = session.query(Score).filter(Score.telegram_id==telegram_id).all() # get all user scores
+        user_scores = None # initialize variable
+
+        if all_user_scores is not None:
+            user_scores = [score for score in all_user_scores if score.date.date().isocalendar().week==dt.date.today().isocalendar().week] # get user scores for today
 
         if user_scores is None:
             continue
@@ -320,33 +324,30 @@ def send_scoreboard(message):
         weekly_score = sum(score.score for score in user_scores)
         weekly_board.append((user.username, weekly_score))
 
-    if len(weekly_board) == 0:
-        bot.reply_to(message, "No users have scored yet.")
-
     # sort scoreboards
     alltime_board.sort(key=lambda x: x[1], reverse=True)
     weekly_board.sort(key=lambda x: x[1], reverse=True)
 
-    str_alltime_board = "*Scoreboard (AllTime)*:"
-    str_weekly_board = "*Scoreboard (Weekly)*:"
+    str_alltime_board = "*Scoreboard (AllTime)*:\n"
+    str_weekly_board = "*Scoreboard (Weekly)*:\n"
 
     for user in alltime_board:
-        str_alltime_board += f"\n{user[1]} _({user[1]})_"
+        str_alltime_board += f"\n{user[1]} _({user[0]})_"
 
     if len(alltime_board) == 0:
-        bot.reply_to(message, str_alltime_board + "\nNo users have scored yet.")
+        bot.reply_to(message, str_alltime_board + "\nNo users have scored yet.", parse_mode='MARKDOWN')
 
     else:
-        bot.reply_to(message, str_alltime_board)
+        bot.reply_to(message, str_alltime_board, parse_mode='MARKDOWN')
 
     for user in weekly_board:
-        str_weekly_board += f"\n{user[1]} _({user[1]})_"
+        str_weekly_board += f"\n{user[1]} _({user[0]})_"
 
     if len(weekly_board) == 0:
-        bot.reply_to(message, str_weekly_board + "\nNo users have scored yet.")
+        bot.reply_to(message, str_weekly_board + "\nNo users have scored yet.", parse_mode='MARKDOWN')
     
     else:
-        bot.reply_to(message, str_weekly_board)
+        bot.reply_to(message, str_weekly_board, parse_mode='MARKDOWN')
 
 
     
