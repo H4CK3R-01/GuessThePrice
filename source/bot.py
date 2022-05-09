@@ -14,6 +14,7 @@ import os
 import re
 import sys
 import datetime as dt
+import time
 
 import sqlalchemy
 import telebot
@@ -21,6 +22,8 @@ from dotenv import load_dotenv
 from sqlalchemy.exc import IntegrityError
 from telebot import types
 from random import randrange
+from apscheduler.schedulers.background import BackgroundScheduler
+import pandas
 
 from db import User, session, Product
 from fetcher import *
@@ -30,6 +33,7 @@ from db import Score
 load_dotenv(dotenv_path='.env')  # load environment variables
 
 BOT_VERSION = "0.0.1"  # version of bot
+UPDATE_PRODUCT = "0 1 * * *"
 
 bot = telebot.TeleBot(os.getenv('BOT_API_KEY'))
 
@@ -101,7 +105,7 @@ def send_help(message):
                     "/scoreboard get scoreboard\n"
                     "/changename change your name\n"
                     "/challenge get todays challenge\n"
-                    "/guess make guess for today")
+                    "/daily make guess for today")
     bot.reply_to(message, help_message, parse_mode='MARKDOWN')
 
 
@@ -266,23 +270,6 @@ def send_challenge(message):
     bot.reply_to(message, "Challenge not implemented yet")
 
 
-@bot.message_handler(commands=['guess', 'Guess'])
-def send_guess(message):
-    """let user guess the price of the product
-
-    Args:
-        message (Message): Message from telegram user, here /guess
-
-    Returns:
-        None: None
-
-    Raises:
-        None: None
-
-    """
-    bot.reply_to(message, "Guess not implemented yet")
-
-
 @bot.message_handler(commands=['changename', 'Changename'])
 def change_name(message):
     """change user name
@@ -300,6 +287,40 @@ def change_name(message):
 
     bot.reply_to(message, "type new name (else type \"cancel\"):")
     bot.register_next_step_handler(message, change_name_setter)
+    
+@bot.message_handler(commands=['daily', 'Daily'])
+def daily_message(message):
+    """change user name
+
+    Args:
+        message (Message): Message from telegram user, here /changename
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    user_id = int(message.from_user.id)
+    
+    bot.send_message(chat_id = user_id, text="Welcome to todays challenge!\n"
+                                             "As soon as the picture loads\n"
+                                             "you will have 35 seconds to send\n"
+                                             "your price guess\n")
+    
+    time.sleep(2)
+    
+    bot.send_message(chat_id = user_id, text="Lets Go!")
+    
+    time.sleep(1)
+    
+    for i in range(3):
+        iteration = 3-i
+        bot.send_message(chat_id=user_id, text=str(iteration))
+        iteration-=1
+        time.sleep(1)
+    
 
 
 def change_name_setter(message):
@@ -456,7 +477,21 @@ def main_loop():
     Raises:
         None: None
     """
+    product_split = UPDATE_PRODUCT.split(" ")
+    my_scheduler = BackgroundScheduler()
+    my_scheduler.add_job(get_todays_product, 'cron'\
+                        ,day_of_week = product_split[4]\
+                        ,hour= product_split[1]\
+                        ,minute = product_split[0]\
+                        ,month= product_split[3]\
+                        ,day=product_split[2])
+    
     bot.infinity_polling()
+    
+def get_todays_product():
+    """Setting product for this day
+    """
+    print(pandas.DataFrame(session.query(Product.price,Product.image_link).all()))
 
 
 if __name__ == '__main__':

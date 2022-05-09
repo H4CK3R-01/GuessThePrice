@@ -56,8 +56,8 @@ def send_current_event(str_event):
         for element in all_users["telegram_id"]:
             bot.send_message(chat_id=int(element), text="Todays challenge is available!\nTry /daily to give it a try :)")
     elif str_event == "over":
-        for element in all_users:
-            bot.send_message(chat_id=int(element), text="Todays challenge is over!\nThe price was:\nCheck the /scoreboard to see the leaderboard!")
+        for element in all_users["telegram_id"]:
+            bot.send_message(chat_id=int(element), text="Todays challenge is over!\nCheck the /scoreboard to see the leaderboard!")
     else:
         sys.exit(-1)
 
