@@ -18,10 +18,8 @@ import time
 
 import sqlalchemy
 import telebot
-import pandas as pd
 from dotenv import load_dotenv
 from telebot import types
-from random import randrange
 from apscheduler.schedulers.background import BackgroundScheduler
 import pandas
 
@@ -149,9 +147,9 @@ def send_user_info(message):
 
     """
     user_id = message.from_user.id
-    user = session.query(User).filter_by(telegram_id=user_id).first()
-    scores = session.query(Score).filter_by(telegram_id=user_id).all()
-    today_score = session.query(Score).filter_by(date=dt.datetime.now(), telegram_id=user_id).first() # get today's score object for user
+    user = session.query(User).filter(User.telegram_id==user_id).first()
+    scores = session.query(Score).filter(User.telegram_id==user_id).all()
+    today_score = session.query(Score).filter(Score.date==dt.datetime.now(), Score.telegram_id==user_id).first() # get today's score object for user
     today_guess = "not guessed today"
 
     if today_score is not None:
@@ -159,7 +157,7 @@ def send_user_info(message):
 
     if user is not None:
         user_name = user.username  # tbd: get user name by id from db
-        user_score = sum(score for score in scores)  # tbd: get user score by adding all scores related to userid
+        user_score = sum(score.score for score in scores)  # tbd: get user score by adding all scores related to userid
         user_guess = today_guess # tbd: display if user has guessed today and how much
         user_info = (f"Your user info:\n"
                      f"User ID: {user_id}\n"
@@ -189,7 +187,7 @@ def send_users(message):
     user_id = message.from_user.id
 
     # Check if user is admin
-    if not session.query(User).filter_by(telegram_id=user_id).first().admin:
+    if not session.query(User).filter(User.telegram_id==user_id).first().admin:
         bot.reply_to(message, "Error: Admin rights are required to see all users.")
         return
 
@@ -223,7 +221,7 @@ def set_admin(message):
     user_id = message.from_user.id
 
     try:
-        user = session.query(User).filter_by(telegram_id=user_id).first()
+        user = session.query(User).filter(User.telegram_id==user_id).first()
 
         if not user.admin:
             bot.reply_to(message, "Error: Admin rights are required to change admin rights of users.")
@@ -253,7 +251,7 @@ def set_admin_handler(message):
         return
 
     telegram_id, admin = str(message.text).split(sep=" ")
-    user = session.query(User).filter_by(telegram_id=telegram_id).first()
+    user = session.query(User).filter(User.telegram_id==telegram_id).first()
 
     if user is None:
         bot.reply_to(message, "Error: User with entered telegram id is not registered.")
@@ -288,9 +286,69 @@ def send_scoreboard(message):
         None: None
 
     """
-    alltime_board = "Scoreboard (AllTime):\n"
-    weekly_board = "Scoreboard (Weekly):\n"
+    alltime_board = []
+    weekly_board = []
+
+    users = session.query(User).all()
+
+    if users is None:
+        bot.reply_to(message, "No users registered.")
+        return
+
+    # generate alltime scoreboard
+    for user in users:
+        telegram_id = user.telegram_id
+        user_scores = session.query(Score).filter(Score.telegram_id==telegram_id).all()
+        
+        if user_scores is None:
+            continue
+
+        alltime_score = sum(score.score for score in user_scores)
+        alltime_board.append((user.username, alltime_score))
+
+    if len(alltime_board) == 0:
+        bot.reply_to(message, "No users have scored yet.")
+
+    # generate weekly scoreboard
+    for user in users:
+        telegram_id = user.telegram_id
+        user_scores = session.query(Score).filter(Score.telegram_id==telegram_id, Score.date.date().isocalendar().week==dt.date.today().isocalendar().week).all() # only get scores of this week
+
+        if user_scores is None:
+            continue
+        
+        weekly_score = sum(score.score for score in user_scores)
+        weekly_board.append((user.username, weekly_score))
+
+    if len(weekly_board) == 0:
+        bot.reply_to(message, "No users have scored yet.")
+
+    # sort scoreboards
+    alltime_board.sort(key=lambda x: x[1], reverse=True)
+    weekly_board.sort(key=lambda x: x[1], reverse=True)
+
+    str_alltime_board = "*Scoreboard (AllTime)*:"
+    str_weekly_board = "*Scoreboard (Weekly)*:"
+
+    for user in alltime_board:
+        str_alltime_board += f"\n{user[1]} _({user[1]})_"
+
+    if len(alltime_board) == 0:
+        bot.reply_to(message, str_alltime_board + "\nNo users have scored yet.")
+
+    else:
+        bot.reply_to(message, str_alltime_board)
+
+    for user in weekly_board:
+        str_weekly_board += f"\n{user[1]} _({user[1]})_"
+
+    if len(weekly_board) == 0:
+        bot.reply_to(message, str_weekly_board + "\nNo users have scored yet.")
     
+    else:
+        bot.reply_to(message, str_weekly_board)
+
+
     
 
 
@@ -390,7 +448,7 @@ def change_name_setter(message):
         user_id = int(message.from_user.id)
         user_name = str(message.text)
         try:
-            user = session.query(User).filter_by(telegram_id=user_id).first()
+            user = session.query(User).filter(User.telegram_id==user_id).first()
             user.username = user_name
             session.commit()
             bot.reply_to(message, f"Your name has been changed to {user_name}")
@@ -417,7 +475,7 @@ def add_product(message):
     user_id = message.from_user.id
 
     # Check if user is admin
-    if not session.query(User).filter_by(telegram_id=user_id).first().admin:
+    if not session.query(User).filter(User.telegram_id==user_id).first().admin:
         bot.reply_to(message, "Error: Admin rights are required to add products")
         return
 
