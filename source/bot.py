@@ -177,15 +177,21 @@ def set_admin(message):
 
     """
     user_id = message.from_user.id
-    user = session.query(User).filter_by(telegram_id=user_id).first()
 
-    if not user.admin:
-        bot.reply_to(message, "Error: Admin rights are required to change admin rights of users.")
-        return
+    try:
+        user = session.query(User).filter_by(telegram_id=user_id).first()
 
-    if user.admin:
-        bot.reply_to(message, "Type the telegram_id and boolean of admin attribute like <telegram_id> <value>")
-        bot.register_next_step_handler(message, set_admin_handler)
+        if not user.admin:
+            bot.reply_to(message, "Error: Admin rights are required to change admin rights of users.")
+            return
+
+        if user.admin:
+            bot.reply_to(message, "Type the telegram_id and boolean of admin attribute like <telegram_id> <value>")
+            bot.register_next_step_handler(message, set_admin_handler)
+
+    except sqlalchemy.exc.IntegrityError:
+        session.rollback()
+        bot.reply_to(message, "Something went wrong.")
 
 
 def set_admin_handler(message):
