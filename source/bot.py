@@ -169,6 +169,35 @@ def send_user_info(message):
     bot.reply_to(message, user_info, parse_mode='MARKDOWN')
 
 
+@bot.message_handler(commands=['users', 'Users'])
+def send_users(message):
+    """send user info to user
+
+    Args: (Message): Message from telegram user, here /users
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    users = session.query(User).all()
+    user_id = message.from_user.id
+
+    # Check if user is admin
+    if not session.query(User).filter_by(telegram_id=user_id).first().admin:
+        bot.reply_to(message, "Error: Admin rights are required to see all users.")
+        return
+
+    for user in users:
+        user_info = (f"Telegram ID: {user.telegram_id}\n"
+                        f"Username: {user.username}\n"
+                        f"Admin: {user.admin}\n")
+        bot.reply_to(message, user_info, parse_mode='MARKDOWN')
+
+
+
 @bot.message_handler(commands=['setAdmin', 'SetAdmin', 'Setadmin', 'setadmin'])
 def set_admin(message):
     """set admin status of user
