@@ -182,13 +182,17 @@ def send_users(message):
         None: None
 
     """
-    users = session.query(User).all()
     user_id = message.from_user.id
 
     # Check if user is admin
     if not session.query(User).filter_by(telegram_id=user_id).first().admin:
         bot.reply_to(message, "Error: Admin rights are required to see all users.")
         return
+
+    users = session.query(User).all()
+    
+    if len(users) == 0:
+        bot.reply_to(message, "No users registered.")
 
     for user in users:
         user_info = (f"Telegram ID: {user.telegram_id}\n"
