@@ -283,7 +283,10 @@ def send_scoreboard(message):
         None: None
 
     """
-    dict
+    alltime_board = "Scoreboard (AllTime):\n"
+    weekly_board = "Scoreboard (Weekly):\n"
+    
+    
 
 
 @bot.message_handler(commands=['challenge', 'Challenge'])
