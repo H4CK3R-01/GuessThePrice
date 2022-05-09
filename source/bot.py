@@ -190,7 +190,7 @@ def send_users(message):
         return
 
     users = session.query(User).all()
-    
+
     if len(users) == 0:
         bot.reply_to(message, "No users registered.")
 
