@@ -214,12 +214,12 @@ def set_admin_handler(message):
     if user is None:
         bot.reply_to(message, "Error: User with entered telegram id is not registered.")
         return
-    
+
     try:
-        if admin == "True" or admin == "true":
+        if admin in ("True", "true"):
             user.admin = True
 
-        elif admin == "False" or admin == "false":
+        elif admin in ("False", "false"):
             user.admin = False
 
         session.commit()
@@ -228,10 +228,6 @@ def set_admin_handler(message):
     except sqlalchemy.exc.IntegrityError:
         session.rollback()
         bot.reply_to(message, "Something went wrong")
-
-    
-
-
 
 
 @bot.message_handler(commands=['scoreboard', 'Scoreboard'])
