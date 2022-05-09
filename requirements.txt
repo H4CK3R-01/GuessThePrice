@@ -1,4 +1,4 @@
-pyTelegramBotAPI~=4.5.0
+pyTelegramBotAPI~=4.5.1
 python-dotenv~=0.20.0
 APScheduler~=3.9.1
 SQLAlchemy~=1.4.36
