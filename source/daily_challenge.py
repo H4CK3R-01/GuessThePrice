@@ -13,7 +13,6 @@ import time
 
 from bot import bot
 from db import User, session, Product
-import pandas
 
 
 CHALLENGE_READY = "0 10 * * *"
@@ -50,24 +49,21 @@ def send_current_event(str_event):
     Args:
         str_event (String): event to send
     """
-    all_users = pandas.DataFrame(session.query(User).all())
-    
-    user_ids = all_users.query["telegram_id"]
-    
-    for element in all_users:
-        print("tbd")
+    all_users = session.query(User.telegram_id).all()
     
     if str_event == "start":
-        print("tbd")
+        for element in all_users:
+            bot.send_message(chat_id=int(element), text="Todays challenge is available!\nTry /daily to give it a try :)")
     elif str_event == "over":
-        print("tbd")
+        for element in all_users:
+            bot.send_message(chat_id=int(element), text="Todays challenge is over!\nThe price was:\nCheck the /scoreboard to see the leaderboard!")
     else:
         sys.exit(-1)
 
 
 if __name__ == "__main__":
     try:
-        test = pandas.DataFrame(session.query(User).all())
+        test = session.query(User.telegram_id).all()
         print(test)
         start_challenges()
         sys.exit(-1)
