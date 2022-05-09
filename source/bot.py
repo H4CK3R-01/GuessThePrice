@@ -23,9 +23,8 @@ from random import randrange
 
 from db import User, session, Product
 from fetcher import *
-from source.db import Score
+from db import Score
 
-# from apscheduler.schedulers.background import BackgroundScheduler
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
@@ -370,7 +369,7 @@ def query_text(inline_query):
 
 
 def main_loop():
-    # nur zum ärgern
+    # nur zum ärgern -> sympathisch :D 
     """main loop for bot
 
     Args:
