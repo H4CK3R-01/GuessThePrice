@@ -17,10 +17,9 @@ import datetime as dt
 
 import sqlalchemy
 import telebot
+import pandas as pd
 from dotenv import load_dotenv
-from sqlalchemy.exc import IntegrityError
 from telebot import types
-from random import randrange
 
 from db import User, session, Product
 from fetcher import *
@@ -284,7 +283,7 @@ def send_scoreboard(message):
         None: None
 
     """
-    bot.reply_to(message, "Scoreboard not implemented yet")
+    dict
 
 
 @bot.message_handler(commands=['challenge', 'Challenge'])
