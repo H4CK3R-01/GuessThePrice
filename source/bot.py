@@ -585,9 +585,9 @@ def main_loop():
                         ,minute = product_split[0]\
                         ,month= product_split[3]\
                         ,day=product_split[2])
-    
+
     bot.infinity_polling()
-    
+
 def get_todays_product():
     """Setting product for this day
     """
