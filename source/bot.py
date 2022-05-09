@@ -162,6 +162,72 @@ def send_user_info(message):
     bot.reply_to(message, user_info, parse_mode='MARKDOWN')
 
 
+@bot.message_handler(commands=['setAdmin', 'SetAdmin', 'Setadmin', 'setadmin'])
+def set_admin(message):
+    """set admin status of user
+
+    Args:
+        message (Message): Message from telegram user, here /setAdmin
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+
+    """
+    user_id = message.from_user.id
+    user = session.query(User).filter_by(telegram_id=user_id).first()
+
+    if not user.admin:
+        bot.reply_to(message, "Error: Admin rights are required to change admin rights of users.")
+        return
+
+    if user.admin:
+        bot.reply_to(message, "Type the telegram_id and boolean of admin attribute like <telegram_id> <value>")
+        bot.register_next_step_handler(message, set_admin_handler)
+
+
+def set_admin_handler(message):
+    """set admin status of user
+
+    Args: message (Message): Message from telegram user, here /setAdmin
+
+    Returns: None: None
+
+    Raises: None: None
+
+    """
+    if not re.match(r'[0-9]* (True|False|true|false)', str(message.text)):
+        bot.reply_to(message, "Error: Invalid format. Try again with /setAdmin")
+        return
+
+    telegram_id, admin = str(message.text).split(sep=" ")
+    user = session.query(User).filter_by(telegram_id=telegram_id).first()
+
+    if user is None:
+        bot.reply_to(message, "Error: User with entered telegram id is not registered.")
+        return
+    
+    try:
+        if admin == "True" or admin == "true":
+            user.admin = True
+
+        elif admin == "False" or admin == "false":
+            user.admin = False
+
+        session.commit()
+        bot.reply_to(message, f"Admin rights of user {user.username} set to {user.admin}")
+
+    except sqlalchemy.exc.IntegrityError:
+        session.rollback()
+        bot.reply_to(message, "Something went wrong")
+
+    
+
+
+
+
 @bot.message_handler(commands=['scoreboard', 'Scoreboard'])
 def send_scoreboard(message):
     """send scoreboard to user
