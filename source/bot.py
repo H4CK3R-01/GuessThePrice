@@ -58,7 +58,7 @@ def start_name_setter(message):
     if str(message.text).lower() == "cancel":  # Set user name to user
         user_name = "User" + str(user_id) # generate user name, user can change it with /changename
 
-    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_]+$', str(message.text)):
+    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_\-]+$', str(message.text)):
         bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
         return
     
@@ -318,7 +318,7 @@ def change_name_setter(message):
         bot.reply_to(message, "Name not changed")
         return
 
-    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_]+$', str(message.text)):
+    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_\-]+$', str(message.text)):
         bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
         return
 
