@@ -10,13 +10,14 @@ __license__ = "None"
 import sys
 from apscheduler.schedulers.background import BackgroundScheduler
 import time
+import pandas
 
 from bot import bot
 from db import User, session, Product
 
 
-CHALLENGE_READY = "0 10 * * *"
-CHALLENGE_OVER = "0 20 * * *"
+CHALLENGE_READY = "0 8 * * *"
+CHALLENGE_OVER = "0 22 * * *"
 
 def start_challenges():
     """Start the daily challenges, read the crontag codes and send messages
@@ -49,10 +50,10 @@ def send_current_event(str_event):
     Args:
         str_event (String): event to send
     """
-    all_users = session.query(User.telegram_id).all()
+    all_users = pandas.DataFrame(session.query(User.telegram_id).all())
     
     if str_event == "start":
-        for element in all_users:
+        for element in all_users["telegram_id"]:
             bot.send_message(chat_id=int(element), text="Todays challenge is available!\nTry /daily to give it a try :)")
     elif str_event == "over":
         for element in all_users:
@@ -63,8 +64,10 @@ def send_current_event(str_event):
 
 if __name__ == "__main__":
     try:
-        test = session.query(User.telegram_id).all()
-        print(test)
+        test = pandas.DataFrame(session.query(User.telegram_id).all())
+        for element in test["telegram_id"]:
+            print(element)
+        
         start_challenges()
         sys.exit(-1)
     except KeyboardInterrupt:
