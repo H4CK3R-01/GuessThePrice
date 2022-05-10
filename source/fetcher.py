@@ -1,8 +1,12 @@
 """script with functions for fetching product data from amazon"""
 import json
+import os
+import time
 
-import requests
 from bs4 import BeautifulSoup
+from pyvirtualdisplay import Display
+from selenium import webdriver
+from selenium.webdriver import firefox
 
 
 def fetch_url(url):
@@ -17,12 +21,29 @@ def fetch_url(url):
     Raises:
         None: None
     """
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; rv:91.0) Gecko/20100101 Firefox/91.0'
-    }
+    display = Display(visible=False, size=(800, 600))
+    display.start()
 
-    response = requests.get(url, headers=headers)
-    return response.text
+    firefox_options = firefox.options.Options()
+    firefox_options.set_preference('browser.download.folderList', 2)
+    firefox_options.set_preference(
+        'browser.download.manager.showWhenStarting', False
+    )
+    firefox_options.set_preference('browser.download.dir', os.getcwd())
+    firefox_options.set_preference(
+        'browser.helperApps.neverAsk.saveToDisk', 'text/csv'
+    )
+
+    browser = webdriver.Firefox(options=firefox_options)
+
+    browser.get(url)
+
+    source = browser.page_source
+
+    browser.quit()
+    display.stop()
+
+    return source
 
 
 def get_title(response):
@@ -47,12 +68,11 @@ def get_title(response):
         return None
 
 
-def get_image(response, title):
+def get_image(response):
     """Get image urls from response
 
     Args:
         response (Text): html response from amazon
-        title (String): title of product
 
     Returns:
         String: product image url
@@ -62,10 +82,10 @@ def get_image(response, title):
     """
     soup = BeautifulSoup(response, 'html.parser')
 
-    images = soup.find_all("img", alt=lambda a: a == title.replace("&", "&amp;"))
+    div = soup.find_all("div", attrs={"id": "imgTagWrapperId"})
 
-    if len(images) > 0:
-        images = json.loads(images[0]["data-a-dynamic-image"])
+    if len(div) > 0:
+        images = json.loads(div[0].img["data-a-dynamic-image"])
 
         # Find largest image
         largest_image_url = None
@@ -76,8 +96,8 @@ def get_image(response, title):
                 largest_image_size = images[image][0]
 
         return largest_image_url
-    else:
-        return None
+
+    return None
 
 
 def get_description(response):
@@ -137,9 +157,25 @@ def get_price(response):
 
 if __name__ == "__main__":
     """Main function"""
-    prod_src = fetch_url('https://www.amazon.de/dp/B082QDB6CG')
+    products = [
+        'B082QDB6CG',
+        'B07MBQPQ62',
+        'B07MBQPQ62',
+        'B09Y64QV33',
+        'B00F0DGRZO',
+        'B071J8CZP9',
+        'B001MF002A',
+        'B082QM712M',
+        'B091DV8SXG',
+    ]
 
-    print("Title:       " + get_title(prod_src) + "\n")
-    print("Image:       " + get_image(prod_src, get_title(prod_src)) + "\n")
-    print("Price:       " + str(get_price(prod_src)) + "\n")
-    print("Description: " + get_description(prod_src))
+    for p in products:
+        prod_src = fetch_url('https://www.amazon.de/dp/' + p)
+
+        print("-----------------------------------------------------" + p + "-----------------------------------------------------")
+        print("Title:       " + str(get_title(prod_src)) + "\n")
+        print("Image:       " + str(get_image(prod_src)) + "\n")
+        print("Price:       " + str(get_price(prod_src)) + "\n")
+        print("Description: " + str(get_description(prod_src)) + "\n\n")
+
+        time.sleep(2)

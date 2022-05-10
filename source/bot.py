@@ -497,7 +497,7 @@ def receive_product_data(message):
     product_src = fetch_url('https://www.amazon.de/dp/' + product_id)
 
     title = get_title(product_src)
-    image_url = get_image(product_src, get_title(product_src))
+    image_url = get_image(product_src)
     price = get_price(product_src)
     description = get_description(product_src)
 

@@ -6,3 +6,5 @@ pymysql==1.0.2
 requests~=2.27.1
 beautifulsoup4~=4.11.1
 pandas~=1.4.1
+PyVirtualDisplay~=3.0
+selenium~=4.1.5
