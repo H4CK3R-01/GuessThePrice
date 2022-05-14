@@ -15,6 +15,7 @@ import re
 import sys
 import datetime as dt
 import time
+import datetime
 
 import sqlalchemy
 import telebot
@@ -388,6 +389,11 @@ def change_name(message):
     bot.reply_to(message, "type new name (else type \"cancel\"):")
     bot.register_next_step_handler(message, change_name_setter)
     
+
+def time_in_range(start, end, current):
+    """Returns whether current is in the range [start, end]"""
+    return start <= current <= end
+    
 @bot.message_handler(commands=['daily', 'Daily'])
 def daily_message(message):
     """change user name
@@ -403,6 +409,15 @@ def daily_message(message):
 
     """
     user_id = int(message.from_user.id)
+    
+    start = datetime.time(8, 0, 0)
+    end = datetime.time(21, 0, 0)
+    current = datetime.datetime.now().time()
+    
+    if not time_in_range(start, end, current):
+        bot.send_message(chat_id=user_id, text="Currently there is no challenge.\n\n"
+                                               "Times are 8am to 10pm.")
+        return
     
     bot.send_message(chat_id = user_id, text="Welcome to todays challenge!\n"
                                              "As soon as the picture loads\n"
@@ -577,16 +592,29 @@ def main_loop():
     Raises:
         None: None
     """
-    product_split = UPDATE_PRODUCT.split(" ")
-    my_scheduler = BackgroundScheduler()
-    my_scheduler.add_job(get_todays_product, 'cron'\
-                        ,day_of_week = product_split[4]\
-                        ,hour= product_split[1]\
-                        ,minute = product_split[0]\
-                        ,month= product_split[3]\
-                        ,day=product_split[2])
 
     bot.infinity_polling()
+    
+    while 1:
+        product_split = UPDATE_PRODUCT.split(" ")
+        my_scheduler = BackgroundScheduler()
+        my_scheduler.add_job(get_todays_product, 'cron'\
+                            ,day_of_week = product_split[4]\
+                            ,hour= product_split[1]\
+                            ,minute = product_split[0]\
+                            ,month= product_split[3]\
+                            ,day=product_split[2])
+        
+        my_scheduler.start()
+        
+        print(f"Scheduler started for {product_split}")
+        
+        time.sleep(10000)
+        
+        print("Restarting scheduler")
+        
+        my_scheduler.shutdown()
+        
 
 def get_todays_product():
     """Setting product for this day
