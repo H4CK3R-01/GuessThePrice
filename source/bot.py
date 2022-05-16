@@ -42,7 +42,22 @@ def send_start(message):
 
     Args:
         message (Message): message from telegram user, here /start
+    
+    Returns:
+        None: None
+    
+    Raises:
+        None: None
+    
+    Test:
+        type /start as command in telegram as an unregistered user and check if bot responds with start message and waits for name
+        type /start as command in telegram as a registered user and check if bot responds with informing user about being already registered
+
     """
+    if message.from_user.id in session.query(User.telegram_id).all():
+        bot.reply_to(message, "You are already registered. Type /changename to change your name or /help for an overview of all commands")
+        return
+    
     bot.send_message(chat_id=int(message.from_user.id), text=("Welcome to the game... \
                                                             \nTo start please set a name for yourself or type cancel to set generated name:"))
 
@@ -54,6 +69,17 @@ def start_name_setter(message):
 
     Args:
         message (Message): Message to react to
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
+    
+    Test:
+        check Regex pattern with incorrect patterns and test if these patterns are denied
+        check Regex pattern with correct patterns and test if these patterns are accepted
+        check if username is set in database after typing correct name
     """
     user_id = int(message.from_user.id)
     user_name = ""
@@ -96,6 +122,9 @@ def send_help(message):
     Raises:
         None: None
 
+    Test:
+        type /help as command in telegram and check if bot responds with help message
+        type /Help <text> as command in telegram and check if bot responds with help message, ignoring the text in message after command
     """
     help_message = ("/me get my user info\n"
                     "/help get this help message\n"
@@ -107,7 +136,7 @@ def send_help(message):
                     "/setAdmin set admin status of user (ADMIN)\n"
                     "/addproduct add product for further challenges (ADMIN)\n"
                     "/users get all users (ADMIN)\n")
-    bot.reply_to(message, help_message, parse_mode='MARKDOWN')
+    bot.reply_to(message, help_message)
 
 
 @bot.message_handler(commands=['gameinfo', 'Gameinfo'])
@@ -122,6 +151,10 @@ def send_gameinfo(message):
 
     Raises:
         None: None
+    
+    Test:
+        type /gameinfo or /Gameinfo as command in telegramand check if bot responds with game info message
+        type /gameInfo as command in telegramand check if bot responds with unknown command message
 
     """
     gameinfo_message = ("GuessThePrice is a game where you have to guess\n"
@@ -132,7 +165,7 @@ def send_gameinfo(message):
                         "To see the challenge type /challenge\n"
                         "To guess the price type /guess\n"
                         "At 22:00 pm the scores and answer will be shown\n")
-    bot.reply_to(message, gameinfo_message, parse_mode='MARKDOWN')
+    bot.reply_to(message, gameinfo_message)
 
 
 @bot.message_handler(commands=['me', 'Me'])
@@ -147,6 +180,11 @@ def send_user_info(message):
 
     Raises:
         None: None
+    
+    Test:
+        type /me as command in telegram as an registered User and check if bot responds with user info message
+        type /me as command in telegram as an unregistered User and check if bot responds with User does not exist message
+
 
     """
     user_id = message.from_user.id
@@ -171,7 +209,7 @@ def send_user_info(message):
         # User not found
         user_info = "User does not exist."
 
-    bot.reply_to(message, user_info, parse_mode='MARKDOWN')
+    bot.reply_to(message, user_info)
 
 
 @bot.message_handler(commands=['users', 'Users'])
@@ -185,6 +223,11 @@ def send_users(message):
 
     Raises:
         None: None
+    
+    Test:
+        type /users as command in telegram as an registered Admin and check if bot responds with user info messages
+        type /users as command in telegram as an an registered User where Admin = False and check if bot responds with "Admin rights are required to see all users" message
+        type /users as command in telegram as an an unregistered User and check if bot responds with "Admin rights are required to see all users" message
 
     """
     user_id = message.from_user.id
@@ -203,7 +246,7 @@ def send_users(message):
         user_info = (f"Telegram ID: {user.telegram_id}\n"
                         f"Username: {user.username}\n"
                         f"Admin: {user.admin}\n")
-        bot.reply_to(message, user_info, parse_mode='MARKDOWN')
+        bot.reply_to(message, user_info)
 
 
 
@@ -219,6 +262,11 @@ def set_admin(message):
 
     Raises:
         None: None
+    
+    Test:
+        type /setAdmin as command in telegram as an registered Admin and check if bot requests id and boolean for changing admin status
+        type /setAdmin as command in telegram as an an registered User where Admin = False in db and check if bot responds with "Admin rights are required to change admin status" message
+        type /setAdmin as command in telegram as an an unregistered User and check if bot responds with "Admin rights are required to change admin status" message
 
     """
     user_id = message.from_user.id
@@ -242,11 +290,19 @@ def set_admin(message):
 def set_admin_handler(message):
     """set admin status of user
 
-    Args: message (Message): Message from telegram user, here /setAdmin
+    Args:
+        message (Message): Message from telegram user, here /setAdmin
 
-    Returns: None: None
+    Returns:
+        None: None
 
-    Raises: None: None
+    Raises:
+        None: None
+    
+    Test:
+        type in correct regex pattern and check if bot sets admin status of user correctly
+        type in wrong regex pattern and check if bot responds with Invalid format message
+        test with incorrect user id and check if bot responds with User not registered message
 
     """
     if not re.match(r'[0-9]* (True|False|true|false)', str(message.text)):
@@ -287,6 +343,11 @@ def send_scoreboard(message):
 
     Raises:
         None: None
+    
+    Test:
+        type /scoreboard as command in telegram and check if bot responds with scoreboard with correct info and formatting
+        test with db with no Users and check if bot responds with "No users registered" message
+
 
     """
     alltime_board = []
@@ -384,11 +445,55 @@ def change_name(message):
     Raises:
         None: None
 
+    Test:
+        type /changename as command in telegram and check if bot sends change name request message
+        type /Changename as command in telegram and check if bot sends change name request message
     """
 
     bot.reply_to(message, "type new name (else type \"cancel\"):")
     bot.register_next_step_handler(message, change_name_setter)
+
+
+def change_name_setter(message):
+    """change user name
+
+    Args:
+        message (Message): Message to react to
+
+    Returns:
+        None: None
+
+    Raises:
+        None: None
     
+    Test:
+        type in correct regex pattern and check if bot changes user name correctly, also in db
+        type in wrong regex pattern and check if bot responds with Invalid format message
+        type cancel and check that name is not changed in db and bot responds with "Name not changed" message
+
+    """
+
+    if str(message.text).lower() == "cancel":  # Set user name to user
+        bot.reply_to(message, "Name not changed")
+        return
+
+    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_\-]+$', str(message.text)):
+        bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
+        return
+
+    else:
+        user_id = int(message.from_user.id)
+        user_name = str(message.text)
+        try:
+            user = session.query(User).filter(User.telegram_id==user_id).first()
+            user.username = user_name
+            session.commit()
+            bot.reply_to(message, f"Your name has been changed to {user_name}")
+
+        except sqlalchemy.exc.IntegrityError:
+            session.rollback()
+            bot.reply_to(message, "Something went wrong")
+
 
 def time_in_range(start, end, current):
     """Returns whether current is in the range [start, end]"""
@@ -435,43 +540,6 @@ def daily_message(message):
         bot.send_message(chat_id=user_id, text=str(iteration))
         iteration-=1
         time.sleep(1)
-    
-
-
-def change_name_setter(message):
-    """change user name
-
-    Args:
-        message (Message): Message to react to
-
-    Returns:
-        None: None
-
-    Raises:
-        None: None
-
-    """
-
-    if str(message.text).lower() == "cancel":  # Set user name to user
-        bot.reply_to(message, "Name not changed")
-        return
-
-    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_\-]+$', str(message.text)):
-        bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
-        return
-
-    else:
-        user_id = int(message.from_user.id)
-        user_name = str(message.text)
-        try:
-            user = session.query(User).filter(User.telegram_id==user_id).first()
-            user.username = user_name
-            session.commit()
-            bot.reply_to(message, f"Your name has been changed to {user_name}")
-
-        except sqlalchemy.exc.IntegrityError:
-            session.rollback()
-            bot.reply_to(message, "Something went wrong")
 
 
 @bot.message_handler(commands=['addproduct', 'Addproduct'])
