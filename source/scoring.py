@@ -6,7 +6,6 @@ __date__ = "02.05.2022"
 __version__ = "0.0.1"
 __license__ = "None"
 
-import pandas as pd
 import plotly.express as px
 
 
@@ -19,10 +18,19 @@ def eval_score(price, guess):
     
     Returns:
         float: score of the user
+    
+    Raises:
+        ValueError: if price or guess is negative
 
+    Test:
+        test eval_score by plotting the score graph and comparing it to the expected result (should be linear or logarithmic/exponential)
+        test with edge cases (e.g. price = 1, guess = 0) -> if guess is half or times 2 actual price -> score should be 0, score has to be always between 0 and 1000
     """
     price = float(price)
     guess = float(guess)
+
+    if price <= 0 or guess < 0:
+        raise ValueError("Price has to be positive, guess has to be positive or zero") # raise error if price or guess is negative
 
     diff = abs(price - guess) # difference between price and guess in absolute value (e.g.: |-5| = 5)
     rel = diff / price
@@ -46,7 +54,17 @@ def get_relative_deviation(price, guess):
     Returns:
         float: relative deviation of the guess (take times hundred for percentage)
 
+    Raises:
+        ValueError: if price or guess is negative
+    
+    Test:
+        test get_relative_deviation with edge cases (e.g. price = 1, guess = 0) -> if guess is half or times 2 actual price -> return value has to be a float >= 0
+        test get_relative_deviation with negative price -> should throw ValueError
+
     """
+    if price <= 0 or guess < 0:
+        raise ValueError("Price has to be positive, guess has to be positive or zero") # raise error if price or guess is negative
+
     price = float(price)
     guess = float(guess)
 
