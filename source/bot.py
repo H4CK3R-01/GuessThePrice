@@ -648,7 +648,6 @@ def query_text(inline_query):
 
 
 def main_loop():
-    # nur zum ärgern -> sympathisch :D 
     """main loop for bot
 
     Args:
