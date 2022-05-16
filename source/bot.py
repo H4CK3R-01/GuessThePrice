@@ -87,7 +87,7 @@ def start_name_setter(message):
     if str(message.text).lower() == "cancel":  # Set user name to user
         user_name = "User" + str(user_id) # generate user name, user can change it with /changename
 
-    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_\-]+$', str(message.text)):
+    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_\-]+$', str(message.text)): # regex pattern for username: has to start with a letter, can contain letters, numbers, underscore and hyphen
         bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
         return
     
@@ -95,14 +95,14 @@ def start_name_setter(message):
 
     try:
         user = User(telegram_id=user_id, username=user_name, admin=False)
-        session.add(user)
-        session.commit()
+        session.add(user) # add user to database
+        session.commit() # commit changes to database
         bot.reply_to(message, f"Thank you for setting your name {user_name} \
             \nType /gameinfo for information about GuessThePrice \
             \nType /help for an overview of all commands")
 
     except sqlalchemy.exc.IntegrityError:
-        session.rollback()
+        session.rollback() # rollback changes
         bot.reply_to(message, "You are already registered, change name with /changename")
 
 
@@ -188,15 +188,15 @@ def send_user_info(message):
 
     """
     user_id = message.from_user.id
-    user = session.query(User).filter(User.telegram_id==user_id).first()
-    scores = session.query(Score).filter(User.telegram_id==user_id).all()
+    user = session.query(User).filter(User.telegram_id==user_id).first() # get user from database, only one user per telegram id exists
+    scores = session.query(Score).filter(User.telegram_id==user_id).all() # get all scores of user
     today_score = session.query(Score).filter(Score.date==dt.datetime.now(), Score.telegram_id==user_id).first() # get today's score object for user
     today_guess = "not guessed today"
 
     if today_score is not None:
-        today_guess = str(today_score.guess)
+        today_guess = str(today_score.guess) # get guess of today's score object of user
 
-    if user is not None:
+    if user is not None: # if user is registered
         user_name = user.username  # tbd: get user name by id from db
         user_score = sum(score.score for score in scores)  # tbd: get user score by adding all scores related to userid
         user_guess = today_guess # tbd: display if user has guessed today and how much
@@ -205,7 +205,7 @@ def send_user_info(message):
                      f"Username: {user_name}\n"
                      f"Today's guess: {user_guess}\n"
                      f"Your Score: {user_score}\n")
-    else:
+    else: # if user is not registered
         # User not found
         user_info = "User does not exist."
 
@@ -232,8 +232,14 @@ def send_users(message):
     """
     user_id = message.from_user.id
 
+    # check if user exists
+    user = session.query(User).filter(User.telegram_id==user_id).first()
+    if not user or user is None: # should never happen, /start is required to chat, but just in case
+        bot.reply_to(message, "Error: You are not registered, please register with /start")
+        return
+
     # Check if user is admin
-    if not session.query(User).filter(User.telegram_id==user_id).first().admin:
+    if not session.query(User).filter(User.telegram_id==user_id).first().admin: # if user is not admin
         bot.reply_to(message, "Error: Admin rights are required to see all users.")
         return
 
@@ -274,7 +280,7 @@ def set_admin(message):
     try:
         user = session.query(User).filter(User.telegram_id==user_id).first()
 
-        if not user.admin:
+        if not user.admin: # admin is a boolean
             bot.reply_to(message, "Error: Admin rights are required to change admin rights of users.")
             return
 
@@ -310,9 +316,9 @@ def set_admin_handler(message):
         return
 
     telegram_id, admin = str(message.text).split(sep=" ")
-    user = session.query(User).filter(User.telegram_id==telegram_id).first()
+    user = session.query(User).filter(User.telegram_id==telegram_id).first() # get user from database, only one user per telegram id exists
 
-    if user is None:
+    if user is None or not user:
         bot.reply_to(message, "Error: User with entered telegram id is not registered.")
         return
 
@@ -323,7 +329,7 @@ def set_admin_handler(message):
         elif admin in ("False", "false"):
             user.admin = False
 
-        session.commit()
+        session.commit() # commit changes to database
         bot.reply_to(message, f"Admin rights of user {user.username} set to {user.admin}")
 
     except sqlalchemy.exc.IntegrityError:
@@ -362,13 +368,13 @@ def send_scoreboard(message):
     # generate alltime scoreboard
     for user in users:
         telegram_id = user.telegram_id
-        user_scores = session.query(Score).filter(Score.telegram_id==telegram_id).all()
+        user_scores = session.query(Score).filter(Score.telegram_id==telegram_id).all() # get all scores of user
         
         if user_scores is None:
             continue
 
-        alltime_score = sum(score.score for score in user_scores)
-        alltime_board.append((user.username, alltime_score))
+        alltime_score = sum(score.score for score in user_scores) # sum all scores of user
+        alltime_board.append((user.username, alltime_score)) # append to alltime scoreboard
 
     # generate weekly scoreboard
     for user in users:
@@ -451,7 +457,7 @@ def change_name(message):
     """
 
     bot.reply_to(message, "type new name (else type \"cancel\"):")
-    bot.register_next_step_handler(message, change_name_setter)
+    bot.register_next_step_handler(message, change_name_setter) # register next step handler, send message and take users answer as input for change_name_setter
 
 
 def change_name_setter(message):
@@ -477,7 +483,7 @@ def change_name_setter(message):
         bot.reply_to(message, "Name not changed")
         return
 
-    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_\-]+$', str(message.text)):
+    if not re.match(r'^[a-zA-Z][a-zA-Z0-9_\-]+$', str(message.text)): # same pattern as in /start
         bot.reply_to(message, "Name has to be alphanumeric (including underscores) and start with a letter")
         return
 
@@ -496,7 +502,7 @@ def change_name_setter(message):
 
 
 def time_in_range(start, end, current):
-    """Returns whether current is in the range [start, end]"""
+    """Returns whether current is in the range [start, end]""" # docstring is missing!!!!!
     return start <= current <= end
     
 @bot.message_handler(commands=['daily', 'Daily'])
