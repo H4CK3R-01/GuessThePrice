@@ -565,7 +565,7 @@ def add_product(message):
     user_id = message.from_user.id
 
     # Check if user is admin
-    if not session.query(User).filter(User.telegram_id==user_id).first().admin:
+    if not session.query(User).filter(User.telegram_id == user_id).first().admin:
         bot.reply_to(message, "Error: Admin rights are required to add products")
         return
 
@@ -619,6 +619,9 @@ def receive_product_data(message):
     except sqlalchemy.exc.IntegrityError:
         session.rollback()
         bot.send_message(chat_id=user_id, text='Product is in database already')
+    except pymysql.err.OperationalError:
+        session.rollback()
+        bot.send_message(chat_id=user_id, text='Unknown error')
 
 
 @bot.callback_query_handler(func=lambda call: True)

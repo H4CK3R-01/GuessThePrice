@@ -20,6 +20,11 @@ def fetch_url(url):
 
     Raises:
         None: None
+
+    Test:
+        What happens if url returns non 200 status code
+        What happens if url returns 200 status code
+        What happens if Firefox, Gecko or important libraries are not installed
     """
     display = Display(visible=False, size=(800, 600))
     display.start()
@@ -57,6 +62,11 @@ def get_title(response):
 
     Raises:
         None: None
+
+    Test:
+        Response contains meta tag with title attribute
+        Response doesn't contain meta tag
+        Response is invalid html
     """
     soup = BeautifulSoup(response, 'html.parser')
 
@@ -79,6 +89,12 @@ def get_image(response):
 
     Raises:
         None: None
+
+    Test:
+        Response contains div with "imgTagWrapperId" id and includes json data
+        Response doesn't contain div
+        Response is invalid html
+        JSON is not valid
     """
     soup = BeautifulSoup(response, 'html.parser')
 
@@ -111,6 +127,11 @@ def get_description(response):
 
     Raises:
         None: None
+
+    Test:
+        Response contains div with "feature-bullets" id
+        Response doesn't contain div
+        Response is invalid html
     """
     soup = BeautifulSoup(response, 'html.parser')
 
@@ -139,6 +160,13 @@ def get_price(response):
 
     Raises:
         None: None
+
+    Test:
+        Response contains div with class "twister-plus-buying-options-price-data"
+        Response doesn't contain div
+        No valid JSON
+        Only price, currency missing
+        Response is invalid html
     """
     soup = BeautifulSoup(response, 'html.parser')
 
