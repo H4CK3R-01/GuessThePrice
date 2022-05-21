@@ -4,7 +4,7 @@ FROM python:3.10-slim
 WORKDIR /srv/flask_app
 
 # Install dependencies
-RUN apt update && apt install -y xvfb curl wget bzip2 libasound2 libc-bin libxtst6 packagekit-gtk3-module libx11-xcb-dev libdbus-glib-1-2 libxt6 libpci-dev && rm -rf /var/lib/apt/lists/*
+RUN apt update -y && apt install -y xvfb curl wget bzip2 libasound2 libc-bin libxtst6 packagekit-gtk3-module libx11-xcb-dev libdbus-glib-1-2 libxt6 libpci-dev && rm -rf /var/lib/apt/lists/*
 
 # Install geckodriver
 RUN GECKODRIVER_VERSION=`curl -L -s https://github.com/mozilla/geckodriver/releases/latest | grep -Po 'v[0-9]+.[0-9]+.[0-9]+' | head -1` && \
