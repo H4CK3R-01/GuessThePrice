@@ -7,9 +7,9 @@ __version__ = "0.0.1"
 __license__ = "None"
 
 
+import time
 import sys
 from apscheduler.schedulers.background import BackgroundScheduler
-import time
 import pandas
 
 from bot import bot
@@ -23,25 +23,25 @@ def start_challenges():
     """Start the daily challenges, read the crontag codes and send messages
     """
     ready_split = CHALLENGE_READY.split(" ")
-    
+
     over_split = CHALLENGE_OVER.split(" ")
-    
+
     my_scheduler = BackgroundScheduler()
-    
+
     my_scheduler.add_job(send_current_event, 'cron'\
                         ,day_of_week = ready_split[4] , hour= ready_split[1] , minute = ready_split[0], month= ready_split[3] , day=ready_split[2]\
                         ,args = ("start", ))
-    
+ 
     my_scheduler.add_job(send_current_event, 'cron'\
                         ,day_of_week = over_split[4] , hour= over_split[1] , minute = over_split[0], month= over_split[3] , day=over_split[2]\
                         ,args = ("over", ))
-    
+
     my_scheduler.start()
-    
+
     time.sleep( 3600 )
     my_scheduler.shutdown()
     start_challenges()
-    
+
 
 
 def send_current_event(str_event):
@@ -67,7 +67,6 @@ if __name__ == "__main__":
         test = pandas.DataFrame(session.query(User.telegram_id).all())
         for element in test["telegram_id"]:
             print(element)
-        
         start_challenges()
         sys.exit(-1)
     except KeyboardInterrupt:
