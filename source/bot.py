@@ -42,13 +42,13 @@ def send_start(message):
 
     Args:
         message (Message): message from telegram user, here /start
-    
+
     Returns:
         None: None
-    
+
     Raises:
         None: None
-    
+
     Test:
         type /start as command in telegram as an unregistered user and check if bot responds with start message and waits for name
         type /start as command in telegram as a registered user and check if bot responds with informing user about being already registered
@@ -57,7 +57,7 @@ def send_start(message):
     if message.from_user.id in session.query(User.telegram_id).all():
         bot.reply_to(message, "You are already registered. Type /changename to change your name or /help for an overview of all commands")
         return
-    
+
     bot.send_message(chat_id=int(message.from_user.id), text=("Welcome to the game... \
                                                             \nTo start please set a name for yourself or type cancel to set generated name:"))
 
@@ -75,7 +75,7 @@ def start_name_setter(message):
 
     Raises:
         None: None
-    
+
     Test:
         check Regex pattern with incorrect patterns and test if these patterns are denied
         check Regex pattern with correct patterns and test if these patterns are accepted
@@ -90,7 +90,7 @@ def start_name_setter(message):
     if not re.match(r'^[a-zA-Z][a-zA-Z0-9\-]+$', str(message.text)): # regex pattern for username: has to start with a letter, can contain letters, numbers and hyphen
         bot.reply_to(message, "Name has to be alphanumeric (including -) and start with a letter")
         return
-    
+
     user_name = str(message.text)
 
     try:
@@ -131,8 +131,7 @@ def send_help(message):
                     "/gameinfo get game info\n"
                     "/scoreboard get scoreboard\n"
                     "/changename change your name\n"
-                    "/challenge get todays challenge\n"
-                    "/daily open and do challenge for today\n"
+                    "/daily get todays challenge\n"
                     "/setAdmin set admin status of user (ADMIN)\n"
                     "/addproduct add product for further challenges (ADMIN)\n"
                     "/users get all users (ADMIN)\n")
@@ -151,9 +150,9 @@ def send_gameinfo(message):
 
     Raises:
         None: None
-    
+
     Test:
-        type /gameinfo or /Gameinfo as command in telegramand check if bot responds with game info message
+        type /gameinfo or /Gameinfo as command in telegram and check if bot responds with game info message
         type /gameInfo as command in telegramand check if bot responds with unknown command message
 
     """
@@ -162,7 +161,7 @@ def send_gameinfo(message):
                         "Start by setting your name with /changename\n"
                         "You can get a new challenge every day.\n"
                         "You are informed when a new challenge is available.\n"
-                        "To see the challenge type /challenge\n"
+                        "To see the challenge type /daily\n"
                         "To guess the price type /guess\n"
                         "At 22:00 pm the scores and answer will be shown\n")
     bot.reply_to(message, gameinfo_message)
@@ -180,7 +179,7 @@ def send_user_info(message):
 
     Raises:
         None: None
-    
+
     Test:
         type /me as command in telegram as an registered User and check if bot responds with user info message
         type /me as command in telegram as an unregistered User and check if bot responds with User does not exist message
@@ -223,7 +222,7 @@ def send_users(message):
 
     Raises:
         None: None
-    
+
     Test:
         type /users as command in telegram as an registered Admin and check if bot responds with user info messages
         type /users as command in telegram as an an registered User where Admin = False and check if bot responds with "Admin rights are required to see all users" message
@@ -268,7 +267,7 @@ def set_admin(message):
 
     Raises:
         None: None
-    
+
     Test:
         type /setAdmin as command in telegram as an registered Admin and check if bot requests id and boolean for changing admin status
         type /setAdmin as command in telegram as an an registered User where Admin = False in db and check if bot responds with "Admin rights are required to change admin status" message
@@ -278,6 +277,7 @@ def set_admin(message):
     user_id = message.from_user.id
 
     try:
+
         user = session.query(User).filter(User.telegram_id==user_id).first()
 
         if not user.admin: # admin is a boolean
@@ -287,6 +287,7 @@ def set_admin(message):
         if user.admin:
             bot.reply_to(message, "Type the telegram_id and boolean of admin attribute like <telegram_id> <value>")
             bot.register_next_step_handler(message, set_admin_handler)
+
 
     except sqlalchemy.exc.IntegrityError:
         session.rollback()
@@ -304,7 +305,7 @@ def set_admin_handler(message):
 
     Raises:
         None: None
-    
+
     Test:
         type in correct regex pattern and check if bot sets admin status of user correctly
         type in wrong regex pattern and check if bot responds with Invalid format message
@@ -349,7 +350,7 @@ def send_scoreboard(message):
 
     Raises:
         None: None
-    
+
     Test:
         type /scoreboard as command in telegram and check if bot responds with scoreboard with correct info and formatting
         test with db with no Users and check if bot responds with "No users registered" message
@@ -369,7 +370,7 @@ def send_scoreboard(message):
     for user in users:
         telegram_id = user.telegram_id
         user_scores = session.query(Score).filter(Score.telegram_id==telegram_id).all() # get all scores of user
-        
+
         if user_scores is None:
             continue
 
@@ -388,7 +389,7 @@ def send_scoreboard(message):
 
         if user_scores is None:
             continue
-        
+
         weekly_score = sum(score.score for score in user_scores)
         weekly_board.append((user.username, weekly_score))
 
@@ -413,29 +414,9 @@ def send_scoreboard(message):
 
     if len(weekly_board) == 0:
         bot.reply_to(message, str_weekly_board + "\nNo users have scored yet.", parse_mode='MARKDOWN')
-    
+
     else:
         bot.reply_to(message, str_weekly_board, parse_mode='MARKDOWN')
-
-
-    
-
-
-@bot.message_handler(commands=['challenge', 'Challenge'])
-def send_challenge(message):
-    """send challenge to user
-
-    Args:
-        message (Message): Message from telegram user, here /challenge
-
-    Returns:
-        None: None
-
-    Raises:
-        None: None
-
-    """
-    bot.reply_to(message, "Challenge not implemented yet")
 
 
 @bot.message_handler(commands=['changename', 'Changename'])
@@ -471,7 +452,7 @@ def change_name_setter(message):
 
     Raises:
         None: None
-    
+
     Test:
         type in correct regex pattern and check if bot changes user name correctly, also in db
         type in wrong regex pattern and check if bot responds with Invalid format message
@@ -504,7 +485,7 @@ def change_name_setter(message):
 def time_in_range(start, end, current):
     """Returns whether current is in the range [start, end]""" # docstring is missing!!!!!
     return start <= current <= end
-    
+
 @bot.message_handler(commands=['daily', 'Daily'])
 def daily_message(message):
     """change user name
@@ -520,32 +501,33 @@ def daily_message(message):
 
     """
     user_id = int(message.from_user.id)
-    
+
     start = datetime.time(8, 0, 0)
     end = datetime.time(21, 0, 0)
     current = datetime.datetime.now().time()
-    
+
     if not time_in_range(start, end, current):
         bot.send_message(chat_id=user_id, text="Currently there is no challenge.\n\n"
                                                "Times are 8am to 10pm.")
         return
-    
+
     bot.send_message(chat_id = user_id, text="Welcome to todays challenge!\n"
                                              "As soon as the picture loads\n"
                                              "you will have 35 seconds to send\n"
                                              "your price guess\n")
-    
+
     time.sleep(2)
-    
+
     bot.send_message(chat_id = user_id, text="Lets Go!")
-    
+
     time.sleep(1)
-    
+
     for i in range(3):
         iteration = 3-i
         bot.send_message(chat_id=user_id, text=str(iteration))
         iteration-=1
         time.sleep(1)
+
 
 
 @bot.message_handler(commands=['addproduct', 'Addproduct'])
@@ -670,32 +652,6 @@ def main_loop():
     """
 
     bot.infinity_polling()
-    
-    while 1:
-        product_split = UPDATE_PRODUCT.split(" ")
-        my_scheduler = BackgroundScheduler()
-        my_scheduler.add_job(get_todays_product, 'cron'\
-                            ,day_of_week = product_split[4]\
-                            ,hour= product_split[1]\
-                            ,minute = product_split[0]\
-                            ,month= product_split[3]\
-                            ,day=product_split[2])
-        
-        my_scheduler.start()
-        
-        print(f"Scheduler started for {product_split}")
-        
-        time.sleep(10000)
-        
-        print("Restarting scheduler")
-        
-        my_scheduler.shutdown()
-        
-
-def get_todays_product():
-    """Setting product for this day
-    """
-    print(pandas.DataFrame(session.query(Product.price,Product.image_link).all()))
 
 
 if __name__ == '__main__':
