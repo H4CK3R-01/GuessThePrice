@@ -1,6 +1,8 @@
 # IntelliJ / PyCharm
 .idea/
 
+*/source/someteststuff.py
+
 db.db
 db.sqlite3
 
