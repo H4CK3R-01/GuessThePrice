@@ -7,7 +7,7 @@ WORKDIR /srv/flask_app
 RUN apt update -y && apt install -y xvfb curl wget bzip2 libasound2 libc-bin libxtst6 packagekit-gtk3-module libx11-xcb-dev libdbus-glib-1-2 libxt6 libpci-dev && rm -rf /var/lib/apt/lists/*
 
 # Install geckodriver
-RUN GECKODRIVER_VERSION=`curl -L -s https://github.com/mozilla/geckodriver/releases/latest | grep -Po 'v[0-9]+.[0-9]+.[0-9]+' | head -1` && \
+RUN GECKODRIVER_VERSION=`curl -L -s -H 'Accept: application/json' https://github.com/mozilla/geckodriver/releases/latest | sed -e 's/.*"tag_name":"\([^"]*\)".*/\1/'` && \
 wget https://github.com/mozilla/geckodriver/releases/download/$GECKODRIVER_VERSION/geckodriver-$GECKODRIVER_VERSION-linux64.tar.gz && \
 tar -zxf geckodriver-$GECKODRIVER_VERSION-linux64.tar.gz -C /usr/local/bin && \
 chmod +x /usr/local/bin/geckodriver && \
@@ -28,4 +28,4 @@ RUN pip install -r requirements.txt --src /usr/local/src --no-warn-script-locati
 COPY source /srv/flask_app
 
 # Run the app
-CMD ["python", "bot.py"]
+CMD ["python", "bot.py", "&", "python", "daily_challenge.py"]
