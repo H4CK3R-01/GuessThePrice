@@ -26,6 +26,7 @@ import pandas
 
 from db import User, session, Product, Score
 from fetcher import *
+import helper_functions as hf
 
 
 load_dotenv(dotenv_path='.env')  # load environment variables
@@ -486,12 +487,22 @@ def time_in_range(start, end, current):
     """Returns whether current is in the range [start, end]""" # docstring is missing!!!!!
     return start <= current <= end
 
+def find_todays_product_from_db():
+    """Find todays product from db based on todays_product
+    """
+    product = None
+    for element in session.query(Product).all():
+        if element.todays_product:
+            product = element
+            break
+    return product
+
 @bot.message_handler(commands=['daily', 'Daily'])
 def daily_message(message):
-    """change user name
+    """send daily challenge
 
     Args:
-        message (Message): Message from telegram user, here /changename
+        message (Message): Message from telegram user, here /daily
 
     Returns:
         None: None
@@ -527,6 +538,35 @@ def daily_message(message):
         bot.send_message(chat_id=user_id, text=str(iteration))
         iteration-=1
         time.sleep(1)
+
+    product_for_today=find_todays_product_from_db()
+    bot.send_message(chat_id=user_id, text=str(hf.make_markdown_proof(product_for_today.image_link)), parse_mode="MARKDOWNV2")
+    start_time = time.time()
+    bot.register_next_step_handler((message,start_time), get_user_guess)
+
+def get_time_difference(start_time, end_time):
+    """Get time difference
+    """
+    return end_time - start_time
+
+def get_user_guess(message, start_time):
+    """Get users guess after typing /daily
+
+    Args:
+        message (Message): Message element to react to. In this case next step after /daily
+        start_time (time.time): Time the user got the image
+    """
+    end_time = time.time()
+    user_id = int(message.from_user.id)
+    user_guess = str(message.text)
+    if get_time_difference(start_time, end_time) > 35:
+        bot.send_message(chat_id=user_id, text="You took too long to guess.\n"
+                                                       "No more tries today.")
+        return
+    else:
+        message_text=f"You guessed {user_guess}€"
+        bot.send_message(chat_id=user_id, text = message_text)
+
 
 
 

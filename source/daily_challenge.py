@@ -9,13 +9,13 @@ __license__ = "None"
 
 import time
 import sys
-from apscheduler.schedulers.background import BackgroundScheduler
 import pandas
 import random
+from apscheduler.schedulers.background import BackgroundScheduler
+
 
 from bot import bot
 from db import User, session, Product
-
 
 CHALLENGE_READY = "0 8 * * *"
 CHALLENGE_OVER = "0 22 * * *"
@@ -52,7 +52,7 @@ def start_challenges():
                         ,args = ("over", ))
 
     # Get new product
-    my_scheduler.add_job(get_todays_product, 'cron'\
+    my_scheduler.add_job(set_todays_product, 'cron'\
                         ,day_of_week = new_product_split[4] \
                         , hour= new_product_split[1] \
                         , minute = new_product_split[0]\
@@ -65,20 +65,42 @@ def start_challenges():
     my_scheduler.shutdown()
     start_challenges()
 
-def get_todays_product():
+
+def set_todays_product():
     """Get a random product from the database
 
     Returns:
         Product: random product
     """
+
+    # Find old product and set todays_product false
+
     products = []
     for element in session.query(Product).all():
-        products.append(element)
+        if element.todays_product:
+            element.todays_product = False
+            session.commit()
+            products.append(element)
+        else:
+            products.append(element)
 
     # choose random product
     random_product = products[int(len(products) * random.random())]
 
-    return random_product
+    # find product_id in db and delete element
+    session.query(Product).filter(Product.product_id == random_product.product_id).delete()
+
+    # insert with todays_product True
+    product=Product(
+        product_id=random_product.product_id,
+        price=random_product.price,
+        image_link=random_product.image_link,
+        title=random_product.title,
+        todays_product=True
+    )
+
+    session.add(product)
+    session.commit()
 
 
 def send_current_event(str_event):
@@ -102,9 +124,7 @@ def send_current_event(str_event):
 
 
 if __name__ == "__main__":
-    send_current_event("start")
-    time.sleep(10)
-
+    set_todays_product()
     try:
         start_challenges()
         sys.exit(-1)

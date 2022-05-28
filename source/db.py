@@ -49,10 +49,11 @@ class Product(Base):
     title = Column(String(5000))
     description = Column(String(5000))
     date = Column(DateTime)
+    todays_product = Column(Boolean)
 
     def __repr__(self):
-        return "<Product(product_id='%s', price='%s', image_link='%s', title='%s', description='%s', date='%s')>" % (
-            self.product_id, self.price, self.image_link, self.title, self.description, self.date)
+        return "<Product(product_id='%s', price='%s', image_link='%s', title='%s', description='%s', date='%s', todays_product='%s')>" % (
+            self.product_id, self.price, self.image_link, self.title, self.description, self.date, self.todays_product)
 
 
 # Create all tables by issuing CREATE TABLE commands to the DB.
