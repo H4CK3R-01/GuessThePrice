@@ -26,6 +26,7 @@ RUN pip install -r requirements.txt --src /usr/local/src --no-warn-script-locati
 
 # Copy the source code to the working directory
 COPY source /srv/flask_app
+RUN chmod +x run.sh
 
 # Run the app
-CMD ["python", "bot.py", "&", "python", "daily_challenge.py"]
+CMD ./run.sh
