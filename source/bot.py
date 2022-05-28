@@ -3,7 +3,7 @@ script for telegram bot and its functions
 """
 __author__ = "Florian Kellermann, Linus Eickhoff, Florian Kaiser"
 __date__ = "02.05.2022"
-__version__ = "0.0.1"
+__version__ = "0.4.7"
 __license__ = "None"
 
 # main bot at http://t.me/guess_the_price_bot
@@ -15,6 +15,7 @@ import re
 import sys
 import datetime as dt
 import time
+from xml.dom.pulldom import START_DOCUMENT
 
 import sqlalchemy
 import telebot
@@ -24,12 +25,15 @@ from telebot import types
 from db import User, session, Product, Score
 from fetcher import *
 import helper_functions as hf
+import scoring
 
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
-BOT_VERSION = "0.6.3"  # version of bot
-UPDATE_PRODUCT = "0 1 * * *"
+BOT_VERSION = "0.6.4"  # version of bot
+
+START_DAY = dt.time(8, 0, 0)
+END_DAY = dt.time(23, 0, 0)
 
 bot = telebot.TeleBot(os.getenv('BOT_API_KEY'))
 
@@ -521,18 +525,16 @@ def daily_message(message):
     """
     user_id = int(message.from_user.id)
 
-    start = dt.time(8, 0, 0)
-    end = dt.time(21, 0, 0)
     current = dt.datetime.now().time()
 
-    if not time_in_range(start, end, current):
+    if not time_in_range(START_DAY, END_DAY, current):
         bot.send_message(chat_id=user_id, text="Currently there is no challenge.\n\n"
                                                "Times are 8am to 10pm.")
         return
 
     bot.send_message(chat_id = user_id, text="Welcome to todays challenge!\n"
                                              "As soon as the picture loads\n"
-                                             "you will have 35 seconds to send\n"
+                                             "you will have 20 seconds to send\n"
                                              "your price guess\n")
 
     time.sleep(2)
@@ -551,9 +553,13 @@ def daily_message(message):
         product_for_today=find_todays_product_from_db()
         bot.send_message(chat_id=user_id, text=str(hf.make_markdown_proof(product_for_today.image_link)), parse_mode="MARKDOWNV2")
         start_time = time.time()
-        bot.register_next_step_handler((message,start_time), get_user_guess)
-    except Exception as e:
-        bot.send_message(chat_id=user_id, text=str(e))
+
+        # next step with message and start time
+        bot.register_next_step_handler(message, get_user_guess, start_time)
+
+    except (TypeError, AttributeError) as exception_message:
+        print(exception_message)
+        bot.send_message(chat_id=user_id, text="An Error occured. Please try again later.")
 
 def get_time_difference(start_time, end_time):
     """Get time difference
@@ -569,14 +575,37 @@ def get_user_guess(message, start_time):
     """
     end_time = time.time()
     user_id = int(message.from_user.id)
-    user_guess = str(message.text)
-    if get_time_difference(start_time, end_time) > 35:
+
+    try:
+        user_guess = float(message.text)
+    except ValueError:
+        bot.send_message(chat_id=user_id, text="Please type a number (or float with '.' )")
+        bot.register_next_step_handler(message, get_user_guess, start_time)
+        return
+
+    if get_time_difference(start_time, end_time) > 20:
         bot.send_message(chat_id=user_id, text="You took too long to guess.\n"
                                                        "No more tries today.")
         return
-    else:
-        message_text=f"You guessed {user_guess}€"
-        bot.send_message(chat_id=user_id, text = message_text)
+
+
+    message_text=f"You guessed {round(user_guess,2)}€"
+    bot.send_message(chat_id=user_id, text = message_text)
+
+    # calculate score for guess
+    product_for_today=find_todays_product_from_db()
+    user_score = scoring.eval_score(product_for_today.price, user_guess)
+
+    score = Score (
+        telegram_id = user_id,
+        date = dt.date.today(),
+        product_id = product_for_today.product_id,
+        guess = user_guess,
+        score = user_score
+    )
+    session.add(score)
+    session.commit()
+
 
 
 

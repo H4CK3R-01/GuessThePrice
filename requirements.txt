@@ -8,3 +8,4 @@ beautifulsoup4~=4.11.1
 pandas~=1.4.2
 PyVirtualDisplay~=3.0
 selenium~=4.2.0
+plotly~=5.8.0
