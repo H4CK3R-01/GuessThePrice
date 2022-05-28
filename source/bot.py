@@ -539,10 +539,13 @@ def daily_message(message):
         iteration-=1
         time.sleep(1)
 
-    product_for_today=find_todays_product_from_db()
-    bot.send_message(chat_id=user_id, text=str(hf.make_markdown_proof(product_for_today.image_link)), parse_mode="MARKDOWNV2")
-    start_time = time.time()
-    bot.register_next_step_handler((message,start_time), get_user_guess)
+    try:
+        product_for_today=find_todays_product_from_db()
+        bot.send_message(chat_id=user_id, text=str(hf.make_markdown_proof(product_for_today.image_link)), parse_mode="MARKDOWNV2")
+        start_time = time.time()
+        bot.register_next_step_handler((message,start_time), get_user_guess)
+    except Exception as e:
+        bot.send_message(chat_id=user_id, text=str(e))
 
 def get_time_difference(start_time, end_time):
     """Get time difference
