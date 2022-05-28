@@ -88,18 +88,7 @@ def set_todays_product():
     random_product = products[int(len(products) * random.random())]
 
     # find product_id in db and delete element
-    session.query(Product).filter(Product.product_id == random_product.product_id).delete()
-
-    # insert with todays_product True
-    product=Product(
-        product_id=random_product.product_id,
-        price=random_product.price,
-        image_link=random_product.image_link,
-        title=random_product.title,
-        todays_product=True
-    )
-
-    session.add(product)
+    session.query(Product).filter(Product.product_id == random_product.product_id).update({'todays_product': True})
     session.commit()
 
 
