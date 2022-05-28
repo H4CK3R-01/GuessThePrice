@@ -49,7 +49,7 @@ class Product(Base):
     title = Column(String(5000))
     description = Column(String(5000))
     date = Column(DateTime)
-    todays_product = Column(Boolean)
+    todays_product = Column(Boolean, default=False)
 
     def __repr__(self):
         return "<Product(product_id='%s', price='%s', image_link='%s', title='%s', description='%s', date='%s', todays_product='%s')>" % (
