@@ -15,14 +15,11 @@ import re
 import sys
 import datetime as dt
 import time
-import datetime
 
 import sqlalchemy
 import telebot
 from dotenv import load_dotenv
 from telebot import types
-from apscheduler.schedulers.background import BackgroundScheduler
-import pandas
 
 from db import User, session, Product, Score
 from fetcher import *
@@ -31,11 +28,22 @@ import helper_functions as hf
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
-BOT_VERSION = "0.0.1"  # version of bot
+BOT_VERSION = "0.6.3"  # version of bot
 UPDATE_PRODUCT = "0 1 * * *"
 
 bot = telebot.TeleBot(os.getenv('BOT_API_KEY'))
 
+@bot.message_handler(commands=['version', 'Version'])
+def send_version(message):
+    """ Sending programm version
+    :type message: message object bot
+    :param message: message that was reacted to, in this case always containing '/version'
+
+    :raises: none
+
+    :rtype:none
+    """
+    bot.reply_to(message, "the current bot version is " + BOT_VERSION)
 
 @bot.message_handler(commands=['start', 'Start'])
 def send_start(message):
@@ -513,9 +521,9 @@ def daily_message(message):
     """
     user_id = int(message.from_user.id)
 
-    start = datetime.time(8, 0, 0)
-    end = datetime.time(21, 0, 0)
-    current = datetime.datetime.now().time()
+    start = dt.time(8, 0, 0)
+    end = dt.time(21, 0, 0)
+    current = dt.datetime.now().time()
 
     if not time_in_range(start, end, current):
         bot.send_message(chat_id=user_id, text="Currently there is no challenge.\n\n"
@@ -656,6 +664,15 @@ def callback_query(call):
     elif call.data == "cb_no":
         bot.answer_callback_query(call.id, "Answer is No")
 
+@bot.message_handler(func=lambda message: True)  # Returning that command is unknown for any other statement
+def echo_all(message):
+    """Echo all other messages
+
+    Args:
+        message (Message): user message that doesnt match any of the commands
+    """
+    answer = 'Do not know this command or text: ' + message.text
+    bot.reply_to(message, answer)
 
 # inline prints for debugging
 @bot.inline_handler(lambda query: query.query == 'text')
