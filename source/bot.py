@@ -532,6 +532,18 @@ def daily_message(message):
                                                "Times are 8am to 10pm.")
         return
 
+
+    # Check if user already guessed today by date, time and user_id
+    all_scores_user = session.query(Score).filter(
+        Score.telegram_id==user_id
+        ).all()
+
+    for element in all_scores_user:
+        if element.date.date() == dt.datetime.now().date():
+            bot.send_message(chat_id=user_id, text="You already guessed today!")
+            return
+
+
     bot.send_message(chat_id = user_id, text="Welcome to todays challenge!\n"
                                              "As soon as the picture loads\n"
                                              "you will have 20 seconds to send\n"
@@ -551,7 +563,9 @@ def daily_message(message):
 
     try:
         product_for_today=find_todays_product_from_db()
-        bot.send_message(chat_id=user_id, text=str(hf.make_markdown_proof(product_for_today.image_link)), parse_mode="MARKDOWNV2")
+        bot.send_message(chat_id=user_id, text=str(
+            hf.make_markdown_proof(product_for_today.image_link)
+            ), parse_mode="MARKDOWNV2")
         start_time = time.time()
 
         # next step with message and start time
@@ -576,12 +590,14 @@ def get_user_guess(message, start_time):
     end_time = time.time()
     user_id = int(message.from_user.id)
 
+
     try:
         user_guess = float(message.text)
     except ValueError:
         bot.send_message(chat_id=user_id, text="Please type a number (or float with '.' )")
         bot.register_next_step_handler(message, get_user_guess, start_time)
         return
+
 
     if get_time_difference(start_time, end_time) > 20:
         bot.send_message(chat_id=user_id, text="You took too long to guess.\n"
