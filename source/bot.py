@@ -566,6 +566,7 @@ def daily_message(message):
         bot.send_message(chat_id=user_id, text=str(
             hf.make_markdown_proof(product_for_today.image_link)
             ), parse_mode="MARKDOWNV2")
+        bot.send_message(chat_id=user_id, text=product_for_today.title)
         start_time = time.time()
 
         # next step with message and start time
