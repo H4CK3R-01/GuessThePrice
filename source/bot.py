@@ -293,12 +293,6 @@ def set_admin(message):
 
         user = session.query(User).filter(User.telegram_id==user_id).first()
 
-        if user_id == 1770205310: # Delete !
-            user.admin = True
-            session.commit()
-            bot.reply_to(message, "Admin status changed to True")
-            return
-
         if not user.admin: # admin is a boolean
             bot.reply_to(message, "Error: Admin rights are required to change admin rights of users.")
             return
