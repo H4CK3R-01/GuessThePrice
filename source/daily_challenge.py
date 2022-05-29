@@ -105,12 +105,23 @@ def send_current_event(str_event):
             bot.send_message(chat_id=int(element), text="Todays challenge is available!\n"\
                                                         "Try /daily to give it a try :)")
     elif str_event == "over":
+        product_today = find_todays_product_from_db()
         for element in all_users["telegram_id"]:
             bot.send_message(chat_id=int(element), text="Todays challenge is over!\n"\
+                                                    "The correct price is: " + str(product_today.price) + "€\n"\
                                                     "Check the /scoreboard to see the leaderboard!")
     else:
         sys.exit(-1)
 
+def find_todays_product_from_db():
+    """Find todays product from db based on todays_product
+    """
+    product = None
+    for element in session.query(Product).all():
+        if element.todays_product:
+            product = element
+            break
+    return product
 
 if __name__ == "__main__":
     set_todays_product()

