@@ -19,6 +19,14 @@ Base = declarative_base()
 
 
 class User(Base):
+    """User Class
+
+    Args:
+        Base (_DeclarativeBase): Base class
+
+    Returns:
+        string: including telegram_id, username and admin
+    """
     __tablename__ = 'user'
     telegram_id = Column(Integer, primary_key=True)
     username = Column(String(50))
@@ -29,6 +37,14 @@ class User(Base):
 
 
 class Score(Base):
+    """Score Class
+
+    Args:
+        Base (_DeclarativeBase): Base class
+
+    Returns:
+        string: including telegram_id, date, product_id, guess and score
+    """
     __tablename__ = 'score'
     telegram_id = Column(Integer, ForeignKey('user.telegram_id'), primary_key=True)
     date = Column(DateTime, primary_key=True)
@@ -41,6 +57,14 @@ class Score(Base):
 
 
 class Product(Base):
+    """Product Class
+
+    Args:
+        Base (_DeclarativeBase): Base class
+
+    Returns:
+        string: including product_id, price, image_link, title, description, date, todays_product
+    """
     __tablename__ = 'product'
     product_id = Column(String(50), primary_key=True)
     price = Column(Float)
