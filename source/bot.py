@@ -3,7 +3,7 @@ script for telegram bot and its functions
 """
 __author__ = "Florian Kellermann, Linus Eickhoff, Florian Kaiser"
 __date__ = "02.05.2022"
-__version__ = "0.6.0"
+__version__ = "0.4.7"
 __license__ = "None"
 
 # main bot at http://t.me/guess_the_price_bot
@@ -39,11 +39,13 @@ bot = telebot.TeleBot(os.getenv('BOT_API_KEY'))
 
 @bot.message_handler(commands=['version', 'Version'])
 def send_version(message):
-    """ Sending program version
+    """ Sending programm version
+    :type message: message object bot
+    :param message: message that was reacted to, in this case always containing '/version'
 
-    Args:
-        message (Message): Message to react to in this case /version
+    :raises: none
 
+    :rtype:none
     """
     bot.reply_to(message, "the current bot version is " + BOT_VERSION)
 
@@ -371,6 +373,8 @@ def send_scoreboard(message):
     Test:
         type /scoreboard as command in telegram and check if bot responds with scoreboard with correct info and formatting
         test with db with no Users and check if bot responds with "No users registered" message
+
+
     """
     alltime_board = []
     weekly_board = []
@@ -524,9 +528,6 @@ def daily_message(message):
     Raises:
         None: None
 
-    Test:
-        type /daily as command in telegram and check if bot sends daily challenge message
-        type /daily again for message that you already played today and your guess
     """
     user_id = int(message.from_user.id)
 
@@ -546,7 +547,7 @@ def daily_message(message):
     for element in all_scores_user:
         if element.date.date() == dt.datetime.now().date():
             bot.send_message(chat_id=user_id, text="You already guessed today!\n"
-                             f"Your guess was: {element.guess}")
+                             "Your guess was: {}".format(element.guess))
             return
 
 
@@ -593,11 +594,6 @@ def get_user_guess(message, start_time):
     Args:
         message (Message): Message element to react to. In this case next step after /daily
         start_time (time.time): Time the user got the image
-
-    Test:
-        Send a price and see if the bot responds correctly (guess accepted)
-        Send text withwith wrong format (right format = number fitting for float) and see if bot notices and gives you another try
-        See if score changes after you guessed (only if you guessed somewhat correctly so your score is not 0)
     """
     end_time = time.time()
     user_id = int(message.from_user.id)
