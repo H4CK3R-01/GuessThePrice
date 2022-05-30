@@ -30,7 +30,7 @@ import scoring
 
 load_dotenv(dotenv_path='.env')  # load environment variables
 
-BOT_VERSION = "0.6.5"  # version of bot
+BOT_VERSION = "0.6.6"  # version of bot
 
 START_DAY = dt.time(8, 0, 0)
 END_DAY = dt.time(23, 0, 0)
