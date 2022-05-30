@@ -8,7 +8,6 @@ __license__ = "None"
 
 
 import time
-import datetime as dt
 import sys
 import pandas
 import random
@@ -16,7 +15,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 
 from bot import bot
-from db import User, session, Product, Score
+from db import User, session, Product
 
 CHALLENGE_READY = "0 8 * * *"
 CHALLENGE_OVER = "0 22 * * *"
@@ -108,16 +107,8 @@ def send_current_event(str_event):
     elif str_event == "over":
         product_today = find_todays_product_from_db()
         for element in all_users["telegram_id"]:
-            user_guesses = session.query(Score).filter(Score.telegram_id == element).all()
-            user_guess, user_score = 0, 0
-            for guesses in user_guesses: # find todays guess and score
-                if guesses.date.date() == dt.datetime.now().date():
-                    user_guess = guesses.guess
-                    user_score = guesses.score
             bot.send_message(chat_id=int(element), text="Todays challenge is over!\n"\
                                                     "The correct price is: " + str(product_today.price) + "€\n"\
-                                                    "Your guess was: " + str(user_guess) + "€\n"\
-                                                    "Your score was: " + str(user_score) + "\n"\
                                                     "Check the /scoreboard to see the leaderboard!")
     else:
         sys.exit(-1)
