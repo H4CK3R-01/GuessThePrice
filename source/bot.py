@@ -33,7 +33,7 @@ load_dotenv(dotenv_path='.env')  # load environment variables
 BOT_VERSION = "0.6.6"  # version of bot
 
 START_DAY = dt.time(8, 0, 0)
-END_DAY = dt.time(23, 0, 0)
+END_DAY = dt.time(22, 0, 0)
 
 bot = telebot.TeleBot(os.getenv('BOT_API_KEY'))
 
@@ -528,6 +528,10 @@ def daily_message(message):
     Raises:
         None: None
 
+    Test:
+        type /daily as command in telegram and check if bot sends daily challenge message
+        type /daily again for message that you already played today and your guess
+
     """
     user_id = int(message.from_user.id)
 
@@ -594,6 +598,11 @@ def get_user_guess(message, start_time):
     Args:
         message (Message): Message element to react to. In this case next step after /daily
         start_time (time.time): Time the user got the image
+
+    Test:
+        Send a price and see if the bot responds correctly (guess accepted)
+        Send text withwith wrong format (right format = number fitting for float) and see if bot notices and gives you another try
+        See if score changes after you guessed (only if you guessed somewhat correctly so your score is not 0)
     """
     end_time = time.time()
     user_id = int(message.from_user.id)
