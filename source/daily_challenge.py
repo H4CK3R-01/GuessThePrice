@@ -77,10 +77,12 @@ def start_challenges():
     start_challenges()
 
 def remind_users():
+    """Remind users if they havent played until 7pm
+    """
     all_users = pandas.DataFrame(session.query(User.telegram_id).all())
     guessed_today = False
 
-    for user in all_users:
+    for user in all_users["telegram_id"]:
         guessed_today = False
         user_guesses = session.query(Score).filter(Score.telegram_id == user).all()
         for guesses in user_guesses:
@@ -88,8 +90,9 @@ def remind_users():
                 guessed_today = True
                 break
         if not guessed_today:
-            bot.send_message(chat_id=int(user), text="REMINDER: You haven't guessed today!\n"\
-                                                     "There are 3 Hours left. Good Luck :)")
+            bot.send_message(chat_id=user, text="REMINDER: You haven't guessed today!\n"\
+                                                     "There are 3 Hours left. Good Luck :)\n"\
+                                                     "/daily")
 
 
 def set_todays_product():
