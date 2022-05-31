@@ -39,13 +39,9 @@ bot = telebot.TeleBot(os.getenv('BOT_API_KEY'))
 
 @bot.message_handler(commands=['version', 'Version'])
 def send_version(message):
-    """ Sending programm version
-    :type message: message object bot
-    :param message: message that was reacted to, in this case always containing '/version'
-
-    :raises: none
-
-    :rtype:none
+    """ Sending program version
+    Args:
+        message (Message): Message to react to in this case /version
     """
     bot.reply_to(message, "the current bot version is " + BOT_VERSION)
 
