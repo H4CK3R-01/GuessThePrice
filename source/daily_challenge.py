@@ -20,6 +20,7 @@ from db import User, session, Product, Score
 
 CHALLENGE_READY = "0 8 * * *"
 CHALLENGE_OVER = "0 22 * * *"
+USER_REMINDER = "0 19 * * *"
 GET_NEW_PRODUCT = "0 0 * * *"
 
 def start_challenges():
@@ -30,6 +31,8 @@ def start_challenges():
     over_split = CHALLENGE_OVER.split(" ")
 
     new_product_split = GET_NEW_PRODUCT.split(" ")
+
+    reminder_split = USER_REMINDER.split(" ")
 
     my_scheduler = BackgroundScheduler()
 
@@ -60,11 +63,33 @@ def start_challenges():
                         , month= new_product_split[3]\
                         , day=new_product_split[2])
 
+    my_scheduler.add_job(remind_users, 'cron'\
+                        ,day_of_week = reminder_split[4] \
+                        , hour= reminder_split[1] \
+                        , minute = reminder_split[0]\
+                        , month= reminder_split[3]\
+                        , day=reminder_split[2])
+
     my_scheduler.start()
 
     time.sleep( 3600 )
     my_scheduler.shutdown()
     start_challenges()
+
+def remind_users():
+    all_users = pandas.DataFrame(session.query(User.telegram_id).all())
+    guessed_today = False
+
+    for user in all_users:
+        guessed_today = False
+        user_guesses = session.query(Score).filter(Score.telegram_id == user).all()
+        for guesses in user_guesses:
+            if guesses.date.date() == dt.datetime.now().date():
+                guessed_today = True
+                break
+        if not guessed_today:
+            bot.send_message(chat_id=int(user), text="REMINDER: You haven't guessed today!\n"\
+                                                     "There are 3 Hours left. Good Luck :)")
 
 
 def set_todays_product():
