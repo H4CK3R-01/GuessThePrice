@@ -91,8 +91,8 @@ def remind_users():
                 break
         if not guessed_today:
             bot.send_message(chat_id=user, text="REMINDER: You haven't guessed today!\n"\
-                                                     "There are 3 Hours left. Good Luck :)\n"\
-                                                     "/daily")
+                                                 "There are 3 Hours left. Good Luck :)\n"\
+                                                 "/daily to participate")
 
 
 def set_todays_product():
