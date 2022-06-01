@@ -205,9 +205,9 @@ def send_user_info(message):
         today_guess = str(today_score.guess) # get guess of today's score object of user
 
     if user is not None: # if user is registered
-        user_name = user.username  # tbd: get user name by id from db
-        user_score = sum(score.score for score in scores)  # tbd: get user score by adding all scores related to userid
-        user_guess = today_guess # tbd: display if user has guessed today and how much
+        user_name = user.username
+        user_score = sum(score.score for score in scores)
+        user_guess = today_guess
         user_info = (f"Your user info:\n"
                      f"User ID: {user_id}\n"
                      f"Username: {user_name}\n"
@@ -288,12 +288,6 @@ def set_admin(message):
     try:
 
         user = session.query(User).filter(User.telegram_id==user_id).first()
-
-        if user_id == 1770205310: # Delete !
-            user.admin = True
-            session.commit()
-            bot.reply_to(message, "Admin status changed to True")
-            return
 
         if not user.admin: # admin is a boolean
             bot.reply_to(message, "Error: Admin rights are required to change admin rights of users.")
