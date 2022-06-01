@@ -171,8 +171,8 @@ def send_gameinfo(message):
                         "You can get a new challenge every day.\n"
                         "You are informed when a new challenge is available.\n"
                         "To see the challenge type /daily\n"
-                        "To guess the price type /guess\n"
-                        "At 22:00 pm the scores and answer will be shown\n")
+                        "At 10pm the correct answer will be shown\n"
+                        "See /scoreboard to see how you perform")
     bot.reply_to(message, gameinfo_message)
 
 
