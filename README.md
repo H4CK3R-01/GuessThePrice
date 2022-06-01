@@ -29,10 +29,10 @@ Oberthema:
 "Data is the new oil"
 
 # Setup for testing
-1. Create virtual environment `python -m venv venv`
-2. Launch venv: `.\venv\Scripts\activate`
-3. Install requirements `pip install -r requirements.txt`
-4. Set environment variables (see list below)
-   1. Create `.env`-file from `.env.example` and fill in needed keys
-   2. Or set variables using `export` or `set` commands. (Windows `set`, Linux `export`)
-5. Run api `python source/bot.py`    
+1. Virtuelles Environment erstellen `python -m venv venv`
+2. venv starten: `.\venv\Scripts\activate`
+3. Requirements installieren `pip install -r requirements.txt`
+4. Umgebungsvariablen setzen (see list below)
+   1. Erstelle das `.env`-file anhand der `.env.example` und fülle sie mit den wichtigen variablen und token
+   2. Alternativ variablen mit `export` oder `set` command setzen. (Windows `set`, Linux `export`)
+5. Bot script starten `python source/bot.py`
