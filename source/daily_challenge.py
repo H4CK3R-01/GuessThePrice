@@ -161,7 +161,10 @@ def find_todays_product_from_db():
     return product
 
 if __name__ == "__main__":
-
-    start_challenges()
-    sys.exit(-1)
-
+    set_todays_product()
+    try:
+        start_challenges()
+        sys.exit(-1)
+    except KeyboardInterrupt:
+        print("Ending")
+        sys.exit(-1)
