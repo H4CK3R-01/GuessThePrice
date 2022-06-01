@@ -598,10 +598,23 @@ def get_user_guess(message, start_time):
     user_id = int(message.from_user.id)
 
 
-    try:
-        user_guess = float(message.text)
-    except ValueError:
-        bot.send_message(chat_id=user_id, text="Please type a number (or float with '.' )")
+    if message.text.count(",") == 0:
+        try:
+            user_guess = float(message.text)
+        except ValueError:
+            bot.send_message(chat_id=user_id, text="Please type a number (or float with '.' )")
+            bot.register_next_step_handler(message, get_user_guess, start_time)
+            return
+
+    if message.text.count(",") == 1:
+        try:
+            user_guess = float(message.text.replace(",", "."))
+        except ValueError:
+            bot.send_message(chat_id=user_id, text="Please type a number of float")
+            bot.register_next_step_handler(message, get_user_guess, start_time)
+            return
+    else:
+        bot.send_message(chat_id=user_id, text="Please type a number or float")
         bot.register_next_step_handler(message, get_user_guess, start_time)
         return
 

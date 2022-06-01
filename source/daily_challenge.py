@@ -161,7 +161,6 @@ def find_todays_product_from_db():
     return product
 
 if __name__ == "__main__":
-    set_todays_product()
     try:
         start_challenges()
         sys.exit(-1)
