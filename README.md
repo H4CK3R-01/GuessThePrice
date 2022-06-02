@@ -34,7 +34,8 @@ Oberthema:
 2. Das Docker Image erstellen `docker build . -t guesstheprice`
 3. Die `source/.env.example`-Datei in das Root-Verzeichnis kopieren und zu `.env` umbenennen `cp source/.env.example .env`
 4. Die `.env`-Datei so anpassen, das die Variablen die richtigen Werte haben
-6. Den Container starten `docker run -d --name guesstheprice --env-file=.env guesstheprice`
+5. Den Container starten `docker run -d --name guesstheprice --env-file=.env guesstheprice`
+6. ALternativ kann für das Starten des Containers auch die `docker-compose.yml` Datei aus dem `.deploy`-Ordner verwendet werden.
 
 ## Without docker
 ### Windows
@@ -54,3 +55,9 @@ Oberthema:
    1. Erstelle das `.env`-file anhand der `.env.example`
    2. Alternativ die Variablen mit dem `export` Befehl setzen.
 5. Bot Skripte starten `python source/bot.py & python source/daily_challenge.py`
+
+# CI-CD
+Damit der Docker Container bei jeder Änderung neu gebaut und gestartet wird, wird bei diesem Projekt **Woodpecker** verwendet: https://woodpecker.flokaiser.com/H4CK3R-01/GuessThePrice/.
+Die Konfiguration hierzu befindet sich im `.woodpecker`-Ordner
+
+Um die Abhängigkeiten aktuell zu halten wird der **dependabot**-Service von Github verwendet. Der Bot erstellt dabei täglich (bei neuen Updates) Pull Requests, die nur noch getestet und gemerged werden müssen.
