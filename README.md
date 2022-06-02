@@ -28,11 +28,29 @@ Umsetzung:
 Oberthema:
 "Data is the new oil"
 
-# Setup for testing
+# Deployment
+## With docker
+1. Das Dockerfile aus dem `source`-Ordner in das Root-Verzeichnis kopieren `cp source/Dockerfile .`
+2. Das Docker Image erstellen `docker build . -t guesstheprice`
+3. Die `source/.env.example`-Datei in das Root-Verzeichnis kopieren und zu `.env` umbenennen `cp source/.env.example .env`
+4. Die `.env`-Datei so anpassen, das die Variablen die richtigen Werte haben
+6. Den Container starten `docker run -d --name guesstheprice --env-file=.env guesstheprice`
+
+## Without docker
+### Windows
 1. Virtuelles Environment erstellen `python -m venv venv`
 2. venv starten: `.\venv\Scripts\activate`
-3. Requirements installieren `pip install -r requirements.txt`
-4. Umgebungsvariablen setzen (see list below)
-   1. Erstelle das `.env`-file anhand der `.env.example` und fülle sie mit den wichtigen variablen und token
-   2. Alternativ variablen mit `export` oder `set` command setzen. (Windows `set`, Linux `export`)
-5. Bot script starten `python source/bot.py`
+3. Abhängigkeiten installieren `pip install -r requirements.txt`
+4. Umgebungsvariablen setzen
+   1. Erstelle die `.env`-Datei anhand der `.env.example`
+   2. Alternativ die Variablen mit dem `set` Befehl setzen.
+5. Bot Skripte starten `python source/bot.py & python source/daily_challenge.py`
+
+### Linux / MacOS
+1. Virtuelles Environment erstellen `python -m venv venv`
+2. venv starten: `source venv/bin/activate`
+3. Abhängigkeiten installieren `pip install -r requirements.txt`
+4. Umgebungsvariablen setzen
+   1. Erstelle das `.env`-file anhand der `.env.example`
+   2. Alternativ die Variablen mit dem `export` Befehl setzen.
+5. Bot Skripte starten `python source/bot.py & python source/daily_challenge.py`
