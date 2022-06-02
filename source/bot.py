@@ -197,25 +197,42 @@ def send_user_info(message):
     """
     user_id = message.from_user.id
     user = session.query(User).filter(User.telegram_id==user_id).first() # get user from database, only one user per telegram id exists
-    scores = session.query(Score).filter(User.telegram_id==user_id).all() # get all scores of user
-    today_score = session.query(Score).filter(Score.date==dt.datetime.now(), Score.telegram_id==user_id).first() # get today's score object for user
-    today_guess = "not guessed today"
+    user_scores = session.query(Score).filter(Score.telegram_id==user_id).all() # get today's score object for user
 
-    if today_score is not None:
-        today_guess = str(today_score.guess) # get guess of today's score object of user
+    today_score = None
+    today_guess = None
+
+    for score in user_scores:
+        if score.date.date() == dt.datetime.now().date(): # check if today's score is already in database
+            today_score = score.score
+            today_guess = score.guess
+
+    if today_guess is None:
+        today_guess = "No guess today"
+    else:
+        today_guess = str(today_guess) + "€"
+
+    if today_score is None:
+        today_score = "No score today"
+
+    if today_score is not None and today_guess is not None:
+        all_time_score = sum(score.score for score in user_scores)
+    else:
+        all_time_score = "No score yet"
+
 
     if user is not None: # if user is registered
         user_name = user.username
-        user_score = sum(score.score for score in scores)
-        user_guess = today_guess
         user_info = (f"Your user info:\n"
                      f"User ID: {user_id}\n"
                      f"Username: {user_name}\n"
-                     f"Today's guess: {user_guess}\n"
-                     f"Your Score: {user_score}\n")
+                     f"Today's guess: {today_guess}\n"
+                     f"Today's Score: {today_score}\n"
+                     f"All time Score: {all_time_score}")
+
     else: # if user is not registered
         # User not found
-        user_info = "User does not exist."
+        user_info = "User does not exist.\nDo /start to register"
 
     bot.reply_to(message, user_info)
 
@@ -492,7 +509,17 @@ def change_name_setter(message):
 
 
 def time_in_range(start, end, current):
-    """Returns whether current is in the range [start, end]""" # docstring is missing!!!!!
+    """ Check if current time is in range of start and end
+
+    Args:
+        start (datetime): start time
+        end (datetime): end time
+        current (datetime): current time
+
+    Returns:
+        bool: True if current time is in range of start and end, False otherwise
+
+    """
     return start <= current <= end
 
 def find_todays_product_from_db():
@@ -596,6 +623,7 @@ def get_user_guess(message, start_time):
     """
     end_time = time.time()
     user_id = int(message.from_user.id)
+    over_time = False #If user guesses to slow (> 20 seconds)
 
     try:
         user_guess = float(message.text.replace( ',', '.'))
@@ -604,25 +632,23 @@ def get_user_guess(message, start_time):
         bot.register_next_step_handler(message, get_user_guess, start_time)
         return
 
-
     if get_time_difference(start_time, end_time) > 20:
         bot.send_message(chat_id=user_id, text="You took too long to guess.\n"
                                                        "No more tries today.")
-        return
+        over_time = True # user guesses to slow
 
+    product_for_today=find_todays_product_from_db()
 
-    if get_time_difference(start_time, end_time) > 20:
-        bot.send_message(chat_id=user_id, text="You took too long to guess.\n"
-                                                       "No more tries today.")
-        return
-
-
-    message_text=f"You guessed {round(user_guess,2)}€"
-    bot.send_message(chat_id=user_id, text = message_text)
+    if not over_time: # when answer was in time
+        message_text=f"You guessed {round(user_guess,2)}€"
+        bot.send_message(chat_id=user_id, text = message_text)
 
     # calculate score for guess
-    product_for_today=find_todays_product_from_db()
-    user_score = scoring.eval_score(product_for_today.price, user_guess)
+    if not over_time:
+        user_score = scoring.eval_score(product_for_today.price, user_guess)
+    else:
+        user_score = 0
+        user_guess = 0
 
     score = Score (
         telegram_id = user_id,
@@ -633,9 +659,6 @@ def get_user_guess(message, start_time):
     )
     session.add(score)
     session.commit()
-
-
-
 
 
 @bot.message_handler(commands=['addproduct', 'Addproduct'])
