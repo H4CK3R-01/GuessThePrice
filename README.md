@@ -29,7 +29,7 @@ Oberthema:
 "Data is the new oil"
 
 # Deployment
-## With docker
+## Mit Docker (Empfohlen)
 1. Das Dockerfile aus dem `source`-Ordner in das Root-Verzeichnis kopieren `cp source/Dockerfile .`
 2. Das Docker Image erstellen `docker build . -t guesstheprice`
 3. Die `source/.env.example`-Datei in das Root-Verzeichnis kopieren und zu `.env` umbenennen `cp source/.env.example .env`
@@ -37,7 +37,10 @@ Oberthema:
 5. Den Container starten `docker run -d --name guesstheprice --env-file=.env guesstheprice`
 6. ALternativ kann für das Starten des Containers auch die `docker-compose.yml` Datei aus dem `.deploy`-Ordner verwendet werden.
 
-## Without docker
+## Ohne Docker
+Da für das Laden der Produkte von Amazon Gecko, Firefox und andere Abhängigkeiten verwenden, ist es relativ komplex den Bot ohne Docker zu Starten.
+Im Docker-Image sind alle Abhängigkeiten direkt integriert, ohne Docker müssen unter Linux einige Librarys heruntergeladen werden. Unter Windows wurde die Nutzung ohne Docker nie getestet.
+
 ### Windows
 1. Virtuelles Environment erstellen `python -m venv venv`
 2. venv starten: `.\venv\Scripts\activate`
