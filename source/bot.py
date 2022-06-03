@@ -16,6 +16,7 @@ import sys
 import datetime as dt
 import time
 from xml.dom.pulldom import START_DOCUMENT
+from fuzzywuzzy import fuzz
 
 import sqlalchemy
 import telebot
@@ -751,8 +752,24 @@ def echo_all(message):
     Args:
         message (Message): user message that doesnt match any of the commands
     """
+    user_id = int(message.from_user.id)
+
+    possible_commands = ['/addproduct', '/daily', '/help', '/me', '/gameinfo', '/scoreboard', '/changename', '/setadmin', '/users', ] # all possible commands
+    matching_commands = []
+
+    for command in possible_commands:
+        print(fuzz.ratio(command, message.text))
+        if fuzz.ratio(command, message.text) > 79: # If word is similar enough for suggestion
+            matching_commands.append(command)
+
+
     answer = 'Do not know this command or text: ' + message.text
     bot.reply_to(message, answer)
+
+    # send all possible matches
+    if len(matching_commands)>0:
+        bot.send_message(chat_id=user_id, text='Did you mean: ' + ', '.join(matching_commands))
+
 
 # inline prints for debugging
 @bot.inline_handler(lambda query: query.query == 'text')
