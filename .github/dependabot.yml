@@ -10,9 +10,4 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-    assignees:
-      - "NormalParameter"
-      - "Rripped"
-      - "FlorianKellermann"
-      - "H4CK3R-01"
     open-pull-requests-limit: 100
