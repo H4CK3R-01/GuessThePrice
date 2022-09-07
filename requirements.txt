@@ -1,7 +1,7 @@
 pyTelegramBotAPI~=4.5.1
 python-dotenv~=0.20.0
 APScheduler~=3.9.1
-SQLAlchemy~=1.4.37
+SQLAlchemy~=1.4.41
 pymysql==1.0.2
 requests~=2.27.1
 beautifulsoup4~=4.11.1
